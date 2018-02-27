@@ -1,4 +1,6 @@
 <?php
+// tick use required as of PHP 4.3.0
+declare(ticks = 1);
 
 include "CICSProtocol.php";
 
@@ -111,7 +113,7 @@ while(true)
                 break;
                 case PAGE_CALL:
 			printf("\r\n");
-			print(">>>>  PAGE-CALL detected \r\n\r\n" );
+			printf(">>>>  PAGE-CALL detected \r\n\r\n" );
                         // send Page call information to mysql database
                         // determin message type via payload ie: 10 digit mobile, 1+, 2+, 3+
                         // Process message type as per above

@@ -21,10 +21,10 @@ declare(ticks = 1);
 /*	Include Libraries   
  */
 
+include "mySignal.php";
 include "PhpSerial.php";
 include "CICSParser.php";
-//include "mySignal.php";
-//include "myError.php";
+include "myError.php";
 //include "myDebug.php";
 //include "myGlobals.php";
 //include "mySocket.php";
@@ -90,6 +90,12 @@ $serial->confFlowControl("none");
 // Then we need to open it
 $serial->deviceOpen();
 
+// Install signal handler
+// - note Phpserial.php throws an exec exception if this is done before serial init
+setupSignalHandler();
+pcntl_signal_dispatch();
+
+// Start parser
 cicsResponseParser($serial);
 
 ?>

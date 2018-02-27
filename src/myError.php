@@ -24,12 +24,15 @@
 function cleanUp($exit) {
      switch ($exit) {
         case "EXIT":
+		/*
                 $mysock=$GLOBALS['sock'];
                 if ($mysock) {
                         $closed_log = "Master Socket Closed ($mysock) \n \n";
                         socket_close($mysock);
                         S_DebugPrint($closed_log);
                 }
+		*/
+		printf("\r\nGame Over Dewd !!!\r\n");
                 exit;
                 break;
         default:

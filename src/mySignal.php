@@ -54,7 +54,7 @@ function signalHandler($signo) {
      switch ($signo) {
          case SIGTERM:
              // handle shutdown tasks
-             S_DebugPrint("Caught SIGTERM");
+             //S_DebugPrint("Caught SIGTERM");
 
 	     // close serial port
 
@@ -63,20 +63,20 @@ function signalHandler($signo) {
              break;
          case SIGHUP:
              // handle restart tasks
-             S_DebugPrint("caught SIGHUP");
+             //S_DebugPrint("caught SIGHUP");
              break;
          case SIGUSR1:
-             S_DebugPrint("Caught SIGUSR1...\n");
+             //S_DebugPrint("Caught SIGUSR1...\n");
              break;
          case SIGINT:
-             S_DebugPrint("Caught SIGINT...\n");
+             //S_DebugPrint("Caught SIGINT...\n");
              cleanUp("EXIT");
 	 case SIGCHLD:
-		S_DebugPrint("Caught SIGCHLD...\n");
+		//S_DebugPrint("Caught SIGCHLD...\n");
 		break;
 		// get child pid then wait
          default:
-             S_DebugPrint("Caught unknown SIGNAL $signo\n");
+             //S_DebugPrint("Caught unknown SIGNAL $signo\n");
              // handle all other signals
      }
 }
@@ -99,7 +99,7 @@ function setupSignalHandler() {
         pcntl_signal(SIGHUP,  "signalHandler");
         pcntl_signal(SIGUSR1, "signalHandler");
         pcntl_signal(SIGINT,  "signalHandler");
-        pcntl_signal(SIGCHLD,  SIG_IGN);
+        //pcntl_signal(SIGCHLD,  SIG_IGN);
 }
 
 ?>
