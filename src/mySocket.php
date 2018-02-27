@@ -100,8 +100,9 @@ function interact($socket)
     /* TALK TO YOUR CLIENT */
 
 	//read - update me later to buffer in missed data
-	$bytes = socket_recv($socket , $in_buffer, 1024, 0);
-        S_DebugPrint("Read $bytes bytes, input: (" . $in_buffer . ") . (" . $socket . ")");
+	//$bytes = socket_recv($socket , $in_buffer, 1024, 0);
+        //S_DebugPrint("Read $bytes bytes, input: (" . $in_buffer . ") . (" . $socket . ")");
+	while(true) sleep(10);
 	
 }
 
