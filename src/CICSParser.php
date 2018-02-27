@@ -86,6 +86,8 @@ while(true)
                 case FREQ:
                 break;
                 case GPS_POSITION:
+			printf("\r\n");
+			printf(">>>> GPS-POSITION detected\r\n\r\n");
                         // send gps-position data to mysql database
                         // ack message to sender radio
                         // take control of radio
@@ -108,7 +110,8 @@ while(true)
                 case OPTIONS:
                 break;
                 case PAGE_CALL:
-			print("[[ Page-Call detected ]]\r\n\r\n" );
+			printf("\r\n");
+			print(">>>>  PAGE-CALL detected \r\n\r\n" );
                         // send Page call information to mysql database
                         // determin message type via payload ie: 10 digit mobile, 1+, 2+, 3+
                         // Process message type as per above
@@ -130,6 +133,8 @@ while(true)
                 case SECURE:
                 break;
                 case SELCALL:
+			printf("\r\n");
+			printf(">>>> SEL-CALL detected\r\n\r\n");
                         // send sel-call information to mysql database
                         // determine SELCALL_ID
                         // Take control of radio
