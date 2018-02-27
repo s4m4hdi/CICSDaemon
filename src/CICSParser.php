@@ -18,7 +18,7 @@ include "CICSProtocol.php";
 function cicsResponseParser($serial) {
 
 printf("CSParser 1.0\r\n");
-$serial->sendMessage("CICSParser 1.0\r\n");
+//$serial->sendMessage("CICSParser 1.0\r\n");
 
 // Or to read from
 $token_array = [];
@@ -49,11 +49,11 @@ while(true)
 
         // Tokenize input buffer
         $x=0;
-        $tok = strtok($line, " \n");
+        $tok = strtok($line, " ,");
         while ($tok !== false) {
                 $token_array[$x++] = $tok;
                 printf("Token: %s\r\n",$tok);
-                $tok = strtok(" \n");
+                $tok = strtok(" ,");
         }
 
 
