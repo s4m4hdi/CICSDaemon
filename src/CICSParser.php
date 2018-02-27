@@ -157,3 +157,5 @@ while(true)
         } //end switch($response)
 } //end while(true)
 } //end cicsResponseParser()
+
+?>
