@@ -367,7 +367,7 @@ define("SECURE_INDEX",		"SECURE INDEX");
 define("SECURE_MODE",		"SECURE MODE:");// CORP|GLOBAL
 define("SECURE",		"SECURE:");	// CORP|GLOBAL [PIN]
 define("SECURE_OFF",		"SECURE: OFF");
-define("SELCALL",		"SELCALL:");	// <channel>, <calleraddress>, <self address>,<date> <time>
+define("SELCALL",		"SEL-CALL:");	// <channel>, <calleraddress>, <self address>,<date> <time>
 define("SELFID_LIST",		"SELFID-LIST:");// <self address>,<self address>, <self address>
 define("SIDEBAND_AM",		"SIDEBAND: AM"); 
 define("SIDEBAND_LSB",		"SIDEBAND: LSB");
