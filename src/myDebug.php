@@ -3,17 +3,12 @@
 /*****************************************************************************************
  *      Function Prototypes:
  *
- *      function S_DebugPrint($string)
- *      function microtime_float()
+ *      function DebugPrint($string)
  *
  *****************************************************************************************/
 
-// array of files to watch for DebugPrint
-//$arrDBG = ["post_update_do.php","update_db_do.php","serial_class_do.php"];
-//$arrDBG = ["post_update_do.php","form_cm.php","form_slave.php","channel_slave.php","output_cm.php","update_db_do.php","display_db.php","filter_cm.php","filter_slave.php"];
-
 /****************************************************************
- * function name: S_DebugPrint($string)
+ * function name: DebugPrint($string)
  *
  * description:
  *
@@ -57,7 +52,6 @@ function microtime_float() {
  * notes:
  ****************************************************************/
 function startUpMessage() {
-	DebugPrint("**** Started Multi socket server ****");
 }
 
 /****************************************************************
@@ -72,7 +66,6 @@ function startUpMessage() {
  * notes:
  ****************************************************************/
 function displayHostName($host) {
-	DebugPrint("host is :" . $host);
 }
 
 

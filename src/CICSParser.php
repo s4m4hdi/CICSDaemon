@@ -1,6 +1,6 @@
 <?php
 
-include "myCICSProtocol.php"
+include "CICSProtocol.php";
 
 
 /****************************************************************
@@ -15,23 +15,51 @@ include "myCICSProtocol.php"
  * notes:
  ****************************************************************/
 
-cicsResponseParser() {
+function cicsResponseParser($serial) {
 
+printf("CSParser 1.0\r\n");
+$serial->sendMessage("CICSParser 1.0\r\n");
 
-while(true) {
+// Or to read from
+$token_array = [];
+$token_array[0] = "";
+while(true)
+{
 
-	//read serial port
+        // Since our read routine is buffering a byte at a time
+        // and is non blocking I have to discard nulls and
+        // concatenate the bytes returned until the terminating char
 
-        // tokenize incoming message
-        $tokenarray = [];
-        $tok = strtok($in_buffer," \n\t");
-        while ($tok !== false) {
-                $tokenarray[] = $tok;
-                $tok = strtok(" \n\t");
+        $read="";
+        $line="";
+        do {
+                // non blocking read
+                $read = $serial->readPort(256);
+                if ($read !== "") {
+                        $line .= $read;
+                       // printf("%s",$read);
+                }
+        } while ( $read !== "\n" );
+        printf("\r\n");
+
+        if ($line) {
+        printf("Read %d bytes \r\n",strlen($line));
+        printf("buffer: %s\r\n",$line);
         }
 
+        // Tokenize input buffer
+        $x=0;
+        $tok = strtok($line, " \n");
+        while ($tok !== false) {
+                $token_array[$x++] = $tok;
+                printf("Token: %s\r\n",$tok);
+                $tok = strtok(" \n");
+        }
+
+
         // extract response token
-        $response=$tokenarray[0];
+        $response=$token_array[0];
+        printf("Response %s \r\n",$response);
 
         // response parser
         switch ($response) {
@@ -80,6 +108,7 @@ while(true) {
                 case OPTIONS:
                 break;
                 case PAGE_CALL:
+			print("[[ Page-Call detected ]]\r\n\r\n" );
                         // send Page call information to mysql database
                         // determin message type via payload ie: 10 digit mobile, 1+, 2+, 3+
                         // Process message type as per above
@@ -89,9 +118,6 @@ while(true) {
                         // cput radio back into scanning mode that closes the call
                 break;
                 case PAGE_CALL_ACK:
-                        //write
-                        $out_buffer = "Recieved page call ack!!\r\n";
-                        $out_status = socket_send($socket,$out_buffer, strlen($out_buffer), MSG_EOF);
                 break;
                 case PAUSE:
                 break;
@@ -123,12 +149,11 @@ while(true) {
                 break;
                 case STATUSTIME:
                 break;
-                case TEL_CALL:
+                case TELLCALL:
                 break;
                 case ERROR:
-                        S_DebugPrint(" $in_buffer ");
                 break;
                 default: //unknown response
-        }
-}
-)
+        } //end switch($response)
+} //end while(true)
+} //end cicsResponseParser()

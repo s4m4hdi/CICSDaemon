@@ -380,9 +380,9 @@ define("TELL_CALL",		"TEL-CALL:");	// <channel>, <callerddress>, <self address>,
 
 
 // CICS Error Messages
+define("ERROR",			"ERROR:");
 
 /*
-define("ERROR",			"ERROR:");
 
 ERROR: Admin access
 required

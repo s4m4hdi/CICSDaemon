@@ -55,6 +55,10 @@ function signalHandler($signo) {
          case SIGTERM:
              // handle shutdown tasks
              S_DebugPrint("Caught SIGTERM");
+
+	     // close serial port
+
+	     // tell child threads to abort
              exit;
              break;
          case SIGHUP:
