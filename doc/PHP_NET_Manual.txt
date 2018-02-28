@@ -1,5 +1,6 @@
 Semaphore, Shared Memory and IPC
 http://php.net/manual/en/book.sem.php
+http://php.net/manual/en/ref.sem.php
 
 Original MySQL API
 http://php.net/manual/en/book.mysql.php

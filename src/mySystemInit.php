@@ -22,6 +22,8 @@ $serial->confFlowControl("none");
 // Then we need to open it
 $serial->deviceOpen();
 
+stream_set_blocking($serial->_dHandle,true);
+
 return $serial;
 }
 ?>

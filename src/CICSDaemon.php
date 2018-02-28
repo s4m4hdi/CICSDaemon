@@ -114,6 +114,7 @@ $stdin = fopen('/dev/null', 'r'); // set fd/0
 $stdout = fopen('/dev/null', 'w'); // set fd/1
 $stderr = fopen('php://stdout', 'w'); // hack to duplicate fd/1 to 2
 */
+
 // Start parser
 cicsResponseParser($serial);
 

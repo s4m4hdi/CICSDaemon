@@ -36,20 +36,24 @@ while(true)
 
         $read="";
         $line="";
-        do {
+//        do {
                 // non blocking read, non canonical
-                $read = $serial->readPort();
+                //$read = $serial->readPort();
+		$read = fgets($serial->_dHandle);
+/*
                 if ($read !== "") {
                         $line .= $read;
                        // printf("%s",$read);
                 }
-        } while ( $read !== "\n" );
-        //printf("\r\n");
+*/
+//        } while ( $read !== "\n" );
+        printf("\r\n");
+	$line=$read;
 
-        //if ($line) {
-        //printf("Read %d bytes \r\n",strlen($line));
-        //printf("buffer: %s\r\n",$line);
-        //}
+        if ($line) {
+        printf("Read %d bytes \r\n",strlen($line));
+        printf("buffer: %s\r\n",$line);
+        }
 
 	//Save to log file if debug mode enabled
 	if ($DEBUG) writeLogFile($line,$CICSParserLog);
