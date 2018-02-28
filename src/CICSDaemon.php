@@ -30,6 +30,8 @@ include "myGlobals.php";
 include "mySocket.php";
 include "myMessageHandler.php";
 include "mySystemInit.php";
+include "myStreamSockets.php";
+
 
 /*
  *****************************************************************************************
@@ -66,18 +68,20 @@ become_daemon();
 //change_identity(65534, 65534);
 
 //Fork Message Handler
-forkMessageHandler();
+$msg_ssock=forkMessageHandler();
+printf(" msg_ssock %s \r\n",fgets($msg_ssock));
 
 //Fork Socket Handler
-forkSocketHandler();
+$srv_ssock=forkSocketHandler();
+printf(" srv_ssock %s \r\n",fgets($srv_ssock));
 
 //Init serial port
 $serial=initSerialport();
 
 // Install signal handler
 // - note Phpserial.php throws an exec exception if this is done before serial init
+// ToDo - update signal handling so child PIDS are tracked and sent correct signals as parent exits
 setupSignalHandler();
-pcntl_signal_dispatch();
 
 // Start parser
 cicsResponseParser($serial);

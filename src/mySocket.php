@@ -28,6 +28,7 @@ function change_identity( $uid, $gid )
   */
 function server_loop($address, $port)
 {
+    printf("Launching socket listener v1.0 %d\r\n",posix_getpid());
     global $__server_listening;
 
     if(($sock = socket_create(AF_INET, SOCK_STREAM, 0)) < 0)
@@ -50,7 +51,7 @@ function server_loop($address, $port)
 
     socket_set_nonblock($sock);
    
-    echo "waiting for clients to connect\n";
+    printf(" - waiting for clients to connect\n\r");
 
     while ($__server_listening)
     {
@@ -142,7 +143,11 @@ function become_daemon()
 function forkSocketHandler ()
 {
 //Listens for requests and forks on each connection
-$__server_listening = true;
+//$__server_listening = true;
+
+// create socket stream pair
+$ssock = getStreamSocketPair();
+
 // fork the child and spawn message handler
     $gpid2 = pcntl_fork();
 
@@ -150,11 +155,15 @@ $__server_listening = true;
     {
         /* fork failed */
         echo "fork failure!\n";
+	fclose($ssock[0]);
+	fclose($ssock[1]);
         exit();
     }elseif ($gpid2)
     {
         /* close the parent */
         // parent will remain in this case - setup parent child stream
+	fclose($ssock[0]);
+	return $ssock[1];
     }else
     {
         /* grand child becomes new daemon process*/
@@ -162,8 +171,9 @@ $__server_listening = true;
         chdir('/');
         umask(0);
         //return posix_getpid();
+	fclose($ssock[1]);
+	fwrite($ssock[0],"server_loop ok\r\n");
 	setupSignalHandler();
-        printf("Launching socket listener v1.0 %d\r\n",posix_getpid());
 	server_loop("192.168.11.80","9650");
 	exit();
     }

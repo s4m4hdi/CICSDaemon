@@ -8,6 +8,10 @@ function messageHandler ()
         while(true) sleep(10);
 }
 function forkMessageHandler() {
+
+// create stream socket pair
+$ssock = getStreamSocketPair();
+
 // fork the child and spawn message handler
     $gpid1 = pcntl_fork();
 
@@ -15,10 +19,14 @@ function forkMessageHandler() {
     {
         /* fork failed */
         echo "fork failure!\n";
+        fclose($ssock[0]);
+        fclose($ssock[1]);
         exit();
     }elseif ($gpid1)
     {
         // parent will remain in this case - setup parent child stream
+	fclose($ssock[0]);
+	return $ssock[1];
     }else
     {
         /* grand child becomes new daemon process*/
@@ -26,7 +34,9 @@ function forkMessageHandler() {
         chdir('/');
         umask(0);
         //return posix_getpid();
+	fclose($ssock[1]);
 	setupSignalHandler();
+	fwrite($ssock[0],"messageHandler ok\r\n");
         messageHandler();
 	exit();
     }

@@ -19,7 +19,7 @@ include "CICSProtocol.php";
 
 function cicsResponseParser($serial) {
 
-printf("CSParser 1.0\r\n");
+printf("Launching CICSParser 1.0\r\n");
 //$serial->sendMessage("CICSParser 1.0\r\n");
 
 // Or to read from
