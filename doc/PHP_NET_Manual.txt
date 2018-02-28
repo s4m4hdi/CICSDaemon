@@ -1,0 +1,25 @@
+Semaphore, Shared Memory and IPC
+http://php.net/manual/en/book.sem.php
+
+Original MySQL API
+http://php.net/manual/en/book.mysql.php
+
+Stream Socket Pair
+http://php.net/manual/en/function.stream-socket-pair.php
+
+File Handling
+https://www.w3schools.com/php/php_file_open.asp
+
+Email
+http://php.net/manual/en/function.mail.php
+
+Socket ACCEPT
+http://php.net/manual/en/function.socket-accept.php
+
+exec
+http://php.net/manual/en/function.exec.php
+
+Threads
+http://php.net/manual/en/book.pthreads.php
+
+

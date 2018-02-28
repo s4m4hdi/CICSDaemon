@@ -1,0 +1,824 @@
+<!doctype html>
+<!--[if lt IE 7]> <html class="no-js ie6 lt-ie9 lt-ie8 lt-ie7" lang="en-US"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js ie7 lt-ie9 lt-ie8" lang="en-US"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js ie8 lt-ie9" lang="en-US"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en-US"> <!--<![endif]-->
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width">
+		<title>Writing a daemon with PHP &raquo; Stuporglue.org</title>
+		<link rel="profile" href="http://gmpg.org/xfn/11" />
+		<link rel="pingback" href="https://stuporglue.org/xmlrpc.php" />
+		<style type="text/css"> #wrapper { max-width: 1024px !important;} </style>
+		<link rel='dns-prefetch' href='//s.w.org' />
+<link rel="alternate" type="application/rss+xml" title="Stuporglue.org &raquo; Feed" href="https://stuporglue.org/feed/" />
+<link rel="alternate" type="application/rss+xml" title="Stuporglue.org &raquo; Comments Feed" href="https://stuporglue.org/comments/feed/" />
+<link rel="alternate" type="application/rss+xml" title="Stuporglue.org &raquo; Writing a daemon with PHP Comments Feed" href="https://stuporglue.org/writing-a-daemon-with-php/feed/" />
+		<script type="text/javascript">
+			window._wpemojiSettings = {"baseUrl":"https:\/\/s.w.org\/images\/core\/emoji\/2.3\/72x72\/","ext":".png","svgUrl":"https:\/\/s.w.org\/images\/core\/emoji\/2.3\/svg\/","svgExt":".svg","source":{"concatemoji":"https:\/\/stuporglue.org\/wp-includes\/js\/wp-emoji-release.min.js?ver=4.8.5"}};
+			!function(a,b,c){function d(a){var b,c,d,e,f=String.fromCharCode;if(!k||!k.fillText)return!1;switch(k.clearRect(0,0,j.width,j.height),k.textBaseline="top",k.font="600 32px Arial",a){case"flag":return k.fillText(f(55356,56826,55356,56819),0,0),b=j.toDataURL(),k.clearRect(0,0,j.width,j.height),k.fillText(f(55356,56826,8203,55356,56819),0,0),c=j.toDataURL(),b!==c&&(k.clearRect(0,0,j.width,j.height),k.fillText(f(55356,57332,56128,56423,56128,56418,56128,56421,56128,56430,56128,56423,56128,56447),0,0),b=j.toDataURL(),k.clearRect(0,0,j.width,j.height),k.fillText(f(55356,57332,8203,56128,56423,8203,56128,56418,8203,56128,56421,8203,56128,56430,8203,56128,56423,8203,56128,56447),0,0),c=j.toDataURL(),b!==c);case"emoji4":return k.fillText(f(55358,56794,8205,9794,65039),0,0),d=j.toDataURL(),k.clearRect(0,0,j.width,j.height),k.fillText(f(55358,56794,8203,9794,65039),0,0),e=j.toDataURL(),d!==e}return!1}function e(a){var c=b.createElement("script");c.src=a,c.defer=c.type="text/javascript",b.getElementsByTagName("head")[0].appendChild(c)}var f,g,h,i,j=b.createElement("canvas"),k=j.getContext&&j.getContext("2d");for(i=Array("flag","emoji4"),c.supports={everything:!0,everythingExceptFlag:!0},h=0;h<i.length;h++)c.supports[i[h]]=d(i[h]),c.supports.everything=c.supports.everything&&c.supports[i[h]],"flag"!==i[h]&&(c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&c.supports[i[h]]);c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&!c.supports.flag,c.DOMReady=!1,c.readyCallback=function(){c.DOMReady=!0},c.supports.everything||(g=function(){c.readyCallback()},b.addEventListener?(b.addEventListener("DOMContentLoaded",g,!1),a.addEventListener("load",g,!1)):(a.attachEvent("onload",g),b.attachEvent("onreadystatechange",function(){"complete"===b.readyState&&c.readyCallback()})),f=c.source||{},f.concatemoji?e(f.concatemoji):f.wpemoji&&f.twemoji&&(e(f.twemoji),e(f.wpemoji)))}(window,document,window._wpemojiSettings);
+		</script>
+		<style type="text/css">
+img.wp-smiley,
+img.emoji {
+	display: inline !important;
+	border: none !important;
+	box-shadow: none !important;
+	height: 1em !important;
+	width: 1em !important;
+	margin: 0 .07em !important;
+	vertical-align: -0.1em !important;
+	background: none !important;
+	padding: 0 !important;
+}
+</style>
+<link rel='stylesheet' id='brunelleschi_nav-above-banner-css'  href='https://stuporglue.org/wp-content/themes/brunelleschi/css/nav-above-banner.css?ver=4.8.5' type='text/css' media='all' />
+<link rel='stylesheet' id='style.css-css'  href='https://stuporglue.org/wp-content/themes/brunelleschi/style.css?ver=4.8.5' type='text/css' media='all' />
+<script type='text/javascript' src='https://stuporglue.org/wp-content/themes/brunelleschi/js/modernizr-2.5.2.min.js?ver=4.8.5'></script>
+<script type='text/javascript' src='https://stuporglue.org/wp-content/themes/brunelleschi/js/respond.js?ver=4.8.5'></script>
+<script type='text/javascript' src='https://stuporglue.org/wp-includes/js/jquery/jquery.js?ver=1.12.4'></script>
+<script type='text/javascript' src='https://stuporglue.org/wp-includes/js/jquery/jquery-migrate.min.js?ver=1.4.1'></script>
+<script type='text/javascript' src='https://stuporglue.org/wp-content/themes/brunelleschi/js/brunelleschi-scripts.js?ver=4.8.5'></script>
+<link rel='https://api.w.org/' href='https://stuporglue.org/wp-json/' />
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://stuporglue.org/xmlrpc.php?rsd" />
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="https://stuporglue.org/wp-includes/wlwmanifest.xml" /> 
+<link rel='prev' title='Handling Signals in PHP' href='https://stuporglue.org/handling-signals-in-php/' />
+<link rel='next' title='Mayonnaise' href='https://stuporglue.org/mayonnais/' />
+<meta name="generator" content="WordPress 4.8.5" />
+<link rel="canonical" href="https://stuporglue.org/writing-a-daemon-with-php/" />
+<link rel='shortlink' href='https://stuporglue.org/?p=196' />
+<link rel="alternate" type="application/json+oembed" href="https://stuporglue.org/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fstuporglue.org%2Fwriting-a-daemon-with-php%2F" />
+<link rel="alternate" type="text/xml+oembed" href="https://stuporglue.org/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fstuporglue.org%2Fwriting-a-daemon-with-php%2F&#038;format=xml" />
+
+            <!--/ Facebook Thumb Fixer Open Graph /-->
+            <meta property="og:type" content="article" />
+            <meta property="og:url" content="https://stuporglue.org/writing-a-daemon-with-php/" />
+            <meta property="og:title" content="<!--:en-->Writing a daemon with PHP<!--:-->" />
+            <meta property="og:description" content="PHP isn't used to write daemons very often, and other languages (like Perl or C) might be more suited to your typical daemon. There are times when PHP is the right choice though, for instance if the rest of your project is a PHP website and you want to keep the same code language across th" />
+            <meta property="og:site_name" content="Stuporglue.org" />
+            <meta property="og:image" content="" />
+
+            <meta itemscope itemtype="article" />
+            <meta itemprop="description" content="PHP isn't used to write daemons very often, and other languages (like Perl or C) might be more suited to your typical daemon. There are times when PHP is the right choice though, for instance if the rest of your project is a PHP website and you want to keep the same code language across th" />
+            <meta itemprop="image" content="" />
+            
+
+		<style>#creativecommons-license div{
+width: 1024px;
+}
+.hentry {border-top-width: 4px;
+margin-bottom: 75px;
+border-color: black;
+}
+
+
+h2 {
+clear: both !important;
+}</style>
+	</head>
+	<body class="post-template-default single single-post postid-196 single-format-standard">
+	<div id="wrapper" class="hfeed container">
+		<header id="header" class="row clearfix">
+							<hgroup id="branding" class="twelvecol last">
+					<h1 class="site-title"><a href="https://stuporglue.org/" title="Stuporglue.org" rel="home">Stuporglue.org</a></h1>
+					<h2 class="site-description">Programming, Rambling and More!</h2>
+				</hgroup>
+										<div id="access" role="navigation" class="twelvecol last clearfix">
+					<div class="skip-link screen-reader-text"><a href="#content" title="Skip to content">Skip to content</a></div>
+					<div class="menu-header"><ul id="menu-menu-1" class="menu"><li id="menu-item-2319" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-2319"><a href="https://stuporglue.org/">Home</a></li>
+<li id="menu-item-2320" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-2320"><a href="https://stuporglue.org/brazil/">Brazil</a></li>
+<li id="menu-item-2321" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-2321"><a href="https://stuporglue.org/about/">Stuporglue?</a></li>
+<li id="menu-item-2322" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-2322"><a href="https://stuporglue.org/about/contact/">Contact Stuporglue</a></li>
+<li id="menu-item-2324" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-2324"><a href="https://stuporglue.org/todayish-in-history/">Todayish In History</a></li>
+</ul></div>				</div><!-- #access -->
+																	</header><!-- #header -->
+		<div id="container" class="row clearfix">
+		
+		<div id="main" role="main" class="tencol ">
+
+			
+				<nav id="nav-above" class="navigation">
+					<div class="nav-previous"><a href="https://stuporglue.org/handling-signals-in-php/" rel="prev"><span class="meta-nav">&larr;</span> <!--:en-->Handling Signals in PHP<!--:--></a></div>
+					<div class="nav-next"><a href="https://stuporglue.org/mayonnais/" rel="next"><!--:en-->Mayonnaise<!--:--> <span class="meta-nav">&rarr;</span></a></div>
+				</nav><!-- #nav-above -->
+
+				<article id="post-196" class="post-196 post type-post status-publish format-standard hentry category-programming category-projects tag-daemon tag-exec tag-forking tag-pcntl_exec tag-pcntl_fork tag-pcntl_signal tag-php tag-waitpid tag-wnohang">
+					<header>
+						<h1 class="entry-title"><!--:en-->Writing a daemon with PHP<!--:--></h1>
+												<div class="entry-meta">
+							<span class="meta-sep">by</span> <span class="author vcard"><a class="url fn n" href="https://stuporglue.org/author/stuporglue/" title="View all posts by stuporglue">stuporglue</a></span> <span class="meta-prep meta-prep-author">Posted on</span> <a href="https://stuporglue.org/writing-a-daemon-with-php/" title="11:56 am" rel="bookmark"><span class="entry-date">March 20, 2010</span></a>						</div><!-- .entry-meta -->
+											</header>
+					<div class="entry-content">
+						<p><!--:en-->PHP isn&#8217;t used to write daemons very often, and other languages (like Perl or C) might be more suited to your typical daemon. There are times when PHP is the right choice though, for instance if the rest of your project is a PHP website and you want to keep the same code language across the project. Everything here is available elsewhere online, but I couldn&#8217;t find a page that brought it all together neatly (fork, exec, waitpid, signal handling), so here it is.</p>
+<p>In this case, I wanted to be able to use the same DB connection file and config file as the rest of the project.</p>
+<p>The commands below which start with pcntl (Process CoNTRol) will only work from command line PHP, not from PHP run as an Apache module. Basically you can&#8217;t launch a daemon directly from PHP run through Apache.</p>
+<h2>Forking: Basics of a daemon</h2>
+<p>The basic thing a daemon must do is get detached from whatever process launched it. Every process except init has a parent process. When a daemon disconnects from its parent process init will adopt it. We can use the pstree command to visually see the process hierarchy.</p>
+<p>Detaching from the parent process is done by forking. Forking makes two running copies of your program. They will both be running the same code at the same place. The new branch (the child) will have a new PID, the original branch (the parent) will continue to have its original PID. The pcntl_fork() command will return  different values for the parent and child. The pcntl_fork() will return the child&#8217;s PID to the parent and will return 0 to the child.</p>
+<p>The following snippet will take advantage of this return value difference to make the parent exit.</p>
+<pre>#!/usr/bin/php
+&lt;?
+// Daemonize
+$pid = pcntl_fork(); // parent gets the child PID, child gets 0
+if($pid){ // 0 is false in PHP
+    // Only the parent will know the PID. Kids aren't self-aware
+    // Parent says goodbye!
+    print "Parent : " . getmypid() . " exiting\n";
+    exit();
+}
+print "Child : " . getmypid() . "\n";
+</pre>
+<p>If you put this in a script and run it, you will see the following output:</p>
+<pre>$ ./daemonize.php
+Child : 10248
+Parent : 10246 exiting</pre>
+<p>Notice that they have different PIDs. If we could&#8217;ve seen the parent PIDs, we would&#8217;ve seen that the child PID was now a child of init (PID 1). We&#8217;ll be able to see that with the next code sample.</p>
+<h2>A Featurefull PHP Daemon</h2>
+<p>Really, the above script daemonizes so we could call it good and be done, but it&#8217;s not that useful yet. We&#8217;ll add a few more features and end up with something we can actually use.</p>
+<h3>Daemon Feature : Loop Forever</h3>
+<p>Most daemons keep running and either keep doing something, or waiting for a signal of some sort and then doing something. In the code below we&#8217;ll add a while(TRUE) loop so we&#8217;ll never exit.</p>
+<h3>Daemon Feature : Close handles and Change directory</h3>
+<p>We want to close any files we don&#8217;t need so that we don&#8217;t get in anyone&#8217;s way. By default the directory you&#8217;re in when you run a process is kept open by the program. as the CWD (current working directory). If you wanted to unmount the drive that path is on, umount might complain about open files.</p>
+<p>Closing STDIN, STDOUT and STDERR is a good idea, because they&#8217;re going to disappear when you close that terminal anyways. Remember once you&#8217;ve closed them, don&#8217;t print anything &#8212; it&#8217;ll throw an error and your daemon will die.</p>
+<h3>Daemon Feature : Exec Worker Processes</h3>
+<p>It is often convenient to have a daemon be a simple controlling program which launched worker processes to do the heavy lifting. The daemon I wrote watch a user table in a database. When certain user criteria were met, the daemon launched a worker process to do some batch processing for that user. This is represented in the code below by the &#8220;if(count($pids) &lt; 6)&#8221;, that&#8217;s our condition here.</p>
+<p>When the condition is met, we fork again. This time, the parent process sticks around (the &#8216;else&#8217; part of the if(!$pids) statement) while the child proces execs a worker process (worker.php). Exec replaces the currently running process so in theory we don&#8217;t need to worry about exiting the child. We keep the exit() around though in case launching the worker process fails for some reason.</p>
+<h3>Daemon Feature : Good Parenting (waitpid)</h3>
+<p>Every time we fork and exec we get another child. Those child worker processes won&#8217;t run forever and we want to avoid <a onclick="javascript:pageTracker._trackPageview('/outgoing/en.wikipedia.org/wiki/Zombie_process');"  href="http://en.wikipedia.org/wiki/Zombie_process" target="_self">Zombie processes</a>, so we need to reap them when they&#8217;re done. There are two ways to handle this situation. The simplest way is to tell our daemon to ignore SIGCHLD signals like so:</p>
+<pre><code>pcntl_signal(SIGCHLD, SIG_IGN);
+</code></pre>
+<p>If we are ignoring SIGCHLD, the child processes will be reaped automatically upon completion.</p>
+<p>The other option is to use waitpid to reap children that have finished.  In the example below we use pcntl_waitpid with the -1 and WNOHANG arguments. -1 tells pcntl_waitpid to reap any child which has exited. WNOHANG tells it to return immediately even if no child has exited yet. Assuming a child has exited, pcntl_waitpid will return the PID of the process which exited.</p>
+<p>We collect our child PIDs as we fork and save them in $pids. The pcntl_waitpid loop removes pids that have exited, so $pids should always have a list of child PIDs that haven&#8217;t exited yet.</p>
+<h3>Daemon Feature : Shutting Down Cleanly</h3>
+<p>We&#8217;ll use the <a href="/handling-signals-in-php/">signal handling</a> discussed yesterday so we can quit on demand instead of needing to be killed. One thing we&#8217;ll do is iterate over any remaining child PIDs and send them the same signal we were sent. This allows them to also shut down cleanly. Once each of the child processes has closed then we exit the daemon.</p>
+<h2>Brining it all together : PHP Daemon Code</h2>
+<p>The code here along with the code from the <a href="/handling-signals-in-php/">signal handling</a> post should give you everything you need to get going. Have fun!<a href="/handling-signals-in-php/"><br />
+</a></p>
+<pre>#!/usr/bin/php -q
+&lt;?php
+ini_set('display_errors',0);
+print "Parent : ". getmypid() . "\n";
+
+global $pids;
+$pids = Array();
+
+// Daemonize
+$pid = pcntl_fork();
+if($pid){
+ // Only the parent will know the PID. Kids aren't self-aware
+ // Parent says goodbye!
+ print "\tParent : " . getmypid() . " exiting\n";
+ exit();
+}
+
+print "Child : " . getmypid() . "\n";
+
+// Handle signals so we can exit nicely
+declare(ticks = 1);
+function sig_handler($signo){
+ global $pids,$pidFileWritten;
+ if ($signo == SIGTERM || $signo == SIGHUP || $signo == SIGINT){
+ // If we are being restarted or killed, quit all children
+
+ // Send the same signal to the children which we recieved
+ foreach($pids as $p){ posix_kill($p,$signo); } 
+
+ // Women and Children first (let them exit)
+ foreach($pids as $p){ pcntl_waitpid($p,$status); }
+ print "Parent : "
+ .  getmypid()
+ . " all my kids should be gone now. Exiting.\n";
+ exit();
+ }else if($signo == SIGUSR1){
+ print "I currently have " . count($pids) . " children\n";
+ }
+}
+// setup signal handlers to actually catch and direct the signals
+pcntl_signal(SIGTERM, "sig_handler");
+pcntl_signal(SIGHUP,  "sig_handler");
+pcntl_signal(SIGINT, "sig_handler");
+pcntl_signal(SIGUSR1, "sig_handler");
+
+// All the daemon setup work is done now. Now do the actual tasks at hand
+
+// The program to launch
+$program = "worker.php";
+$arguments = Array("");
+
+while(TRUE){
+ // In a real world scenario we would do some sort of conditional launch.
+ // Maybe a condition in a DB is met, or whatever, here we're going to
+ // cap the number of concurrent grandchildren
+ if(count($pids) &lt; 6){
+ $pid=pcntl_fork();
+ if(!$pid){
+ pcntl_exec($program,$arguments); // takes an array of arguments
+ exit();
+ } else {
+ // We add pids to a global array, so that when we get a kill signal
+ // we tell the kids to flush and exit.
+ $pids[] = $pid;
+ }
+ }
+
+ // Collect any children which have exited on their own. pcntl_waitpid will
+ // return the PID that exited or 0 or ERROR
+ // WNOHANG means we won't sit here waiting if there's not a child ready
+ // for us to reap immediately
+ // -1 means any child
+ $dead_and_gone = pcntl_waitpid(-1,$status,WNOHANG);
+ while($dead_and_gone &gt; 0){
+ // Remove the gone pid from the array
+ unset($pids[array_search($dead_and_gone,$pids)]); 
+
+ // Look for another one
+ $dead_and_gone = pcntl_waitpid(-1,$status,WNOHANG);
+ }
+
+ // Sleep for 1 second
+ sleep(1);
+}
+</pre>
+<p>Warnings / Notes:</p>
+<p>If you daemonize, close your terminal, and then your daemon tries to print, you&#8217;re going to have problems. Your daemon will still try to print to STDOUT, which will now be closed. This will likely cause it to fail in an unpleasant manner.<!--:--></p>
+											</div><!-- .entry-content -->
+
+
+					<div class="entry-utility">
+												This entry was posted in <a href="https://stuporglue.org/category/computers/programming/" rel="category tag">Programming</a>, <a href="https://stuporglue.org/category/projects/" rel="category tag">Projects</a> and tagged <a href="https://stuporglue.org/tag/daemon/" rel="tag">daemon</a>, <a href="https://stuporglue.org/tag/exec/" rel="tag">exec</a>, <a href="https://stuporglue.org/tag/forking/" rel="tag">forking</a>, <a href="https://stuporglue.org/tag/pcntl_exec/" rel="tag">pcntl_exec</a>, <a href="https://stuporglue.org/tag/pcntl_fork/" rel="tag">pcntl_fork</a>, <a href="https://stuporglue.org/tag/pcntl_signal/" rel="tag">pcntl_signal</a>, <a href="https://stuporglue.org/tag/php/" rel="tag">PHP</a>, <a href="https://stuporglue.org/tag/waitpid/" rel="tag">waitpid</a>, <a href="https://stuporglue.org/tag/wnohang/" rel="tag">WNOHANG</a>. Bookmark the <a href="https://stuporglue.org/writing-a-daemon-with-php/" title="Permalink to Writing a daemon with PHP" rel="bookmark">permalink</a>.											</div><!-- .entry-utility -->
+				</article><!-- #post-## -->
+
+				<nav id="nav-below" class="navigation">
+					<div class="nav-previous"><a href="https://stuporglue.org/handling-signals-in-php/" rel="prev"><span class="meta-nav">&larr;</span> <!--:en-->Handling Signals in PHP<!--:--></a></div>
+					<div class="nav-next"><a href="https://stuporglue.org/mayonnais/" rel="next"><!--:en-->Mayonnaise<!--:--> <span class="meta-nav">&rarr;</span></a></div>
+				</nav><!-- #nav-below -->
+
+							<div id="comments">
+
+			<h3 id="comments-title">20 Responses to <em><!--:en-->Writing a daemon with PHP<!--:--></em></h3>
+
+	
+			<ol class="commentlist">
+						<li class="comment even thread-even depth-1" id="li-comment-588">
+			<div id="comment-588">
+			<div class="comment-author vcard">
+								<cite class="fn"><a onclick="javascript:pageTracker._trackPageview('/outgoing/clrb.net');"  href='http://clrb.net' rel='external nofollow' class='url'>Charles</a></cite> <span class="says">says:</span>			</div><!-- .comment-author .vcard -->
+				
+			<div class="comment-meta commentmetadata"><a href="https://stuporglue.org/writing-a-daemon-with-php/#comment-588">
+				February 9, 2011 at 8:09 pm</a>			</div><!-- .comment-meta .commentmetadata -->
+	
+			<div class="comment-body"><p>hi, i found this page extremely useful for spawning worker threads. exactly what i needed. however, i don&#8217;t quite understand the first line of your script</p>
+<p>#!/usr/bin/php -q</p>
+<p>What&#8217;s -q? I&#8217;ve looked in man docs and did php -h to see what pop up&#8230; I don&#8217;t see this switch listed anywhere for PHP. Could you kindly explain?</p>
+<p>Thanks!</p>
+</div>
+	
+			<div class="reply">
+				<a rel='nofollow' class='comment-reply-link' href='https://stuporglue.org/writing-a-daemon-with-php/?replytocom=588#respond' onclick='return addComment.moveForm( "comment-588", "588", "respond", "196" )' aria-label='Reply to Charles'>Reply</a>			</div><!-- .reply -->
+		</div><!-- #comment-##  -->
+	
+		<ul class="children">
+		<li class="comment byuser comment-author-stuporglue bypostauthor odd alt depth-2" id="li-comment-589">
+			<div id="comment-589">
+			<div class="comment-author vcard">
+								<cite class="fn"><a href='https://stuporglue.org/' rel='external nofollow' class='url'>stuporglue</a></cite> <span class="says">says:</span>			</div><!-- .comment-author .vcard -->
+				
+			<div class="comment-meta commentmetadata"><a href="https://stuporglue.org/writing-a-daemon-with-php/#comment-589">
+				February 9, 2011 at 8:48 pm</a>			</div><!-- .comment-meta .commentmetadata -->
+	
+			<div class="comment-body"><p>The PHP man page (for PHP 5.3.3)  I have on Ubuntu says this: </p>
+<p><code>-q             Quiet-mode. Suppress HTTP header output (CGI only).</code></p>
+<p>The -q might not actually be needed for daemons etc. anymore. On an older version of PHP I would get the HTTP headers when I used PHP from the command line, but even without the -q I&#8217;m not seeing that anymore. It must see that it&#8217;s command-line PHP and not print them.</p>
+</div>
+	
+			<div class="reply">
+				<a rel='nofollow' class='comment-reply-link' href='https://stuporglue.org/writing-a-daemon-with-php/?replytocom=589#respond' onclick='return addComment.moveForm( "comment-589", "589", "respond", "196" )' aria-label='Reply to stuporglue'>Reply</a>			</div><!-- .reply -->
+		</div><!-- #comment-##  -->
+	
+		</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+		<li class="comment even thread-odd thread-alt depth-1" id="li-comment-593">
+			<div id="comment-593">
+			<div class="comment-author vcard">
+								<cite class="fn">Jacob</cite> <span class="says">says:</span>			</div><!-- .comment-author .vcard -->
+				
+			<div class="comment-meta commentmetadata"><a href="https://stuporglue.org/writing-a-daemon-with-php/#comment-593">
+				February 23, 2011 at 7:08 pm</a>			</div><!-- .comment-meta .commentmetadata -->
+	
+			<div class="comment-body"><p><cite>If you daemonize, close your terminal, and then your daemon tries to print, you’re going to have problems. Your daemon will still try to print to STDOUT, which will now be closed. This will likely cause it to fail in an unpleasant manner.</cite><br />
+I start my children via cron or terminal, and have the above problem.<br />
+How can it be fixed?</p>
+</div>
+	
+			<div class="reply">
+				<a rel='nofollow' class='comment-reply-link' href='https://stuporglue.org/writing-a-daemon-with-php/?replytocom=593#respond' onclick='return addComment.moveForm( "comment-593", "593", "respond", "196" )' aria-label='Reply to Jacob'>Reply</a>			</div><!-- .reply -->
+		</div><!-- #comment-##  -->
+	
+		<ul class="children">
+		<li class="comment byuser comment-author-stuporglue bypostauthor odd alt depth-2" id="li-comment-594">
+			<div id="comment-594">
+			<div class="comment-author vcard">
+								<cite class="fn"><a href='https://stuporglue.org/' rel='external nofollow' class='url'>stuporglue</a></cite> <span class="says">says:</span>			</div><!-- .comment-author .vcard -->
+				
+			<div class="comment-meta commentmetadata"><a href="https://stuporglue.org/writing-a-daemon-with-php/#comment-594">
+				February 25, 2011 at 1:06 am</a>			</div><!-- .comment-meta .commentmetadata -->
+	
+			<div class="comment-body"><p>One option is to make sure that your program never prints anything, then you won&#8217;t trigger this issue. Another option, for cron at least, is that you can enter your cron command with >/dev/null 2>&#038;1  at the end. >/dev/null redirect stdout to /dev/null of course, and 2>&#038;1 redirects any error output to stdout (which is going to /dev/null). </p>
+<p>Running from a terminal and then closing the terminal may give you one other issue, closing a terminal may send your application SIGHUP which will typically cause a process to exit if it is not handled.</p>
+</div>
+	
+			<div class="reply">
+				<a rel='nofollow' class='comment-reply-link' href='https://stuporglue.org/writing-a-daemon-with-php/?replytocom=594#respond' onclick='return addComment.moveForm( "comment-594", "594", "respond", "196" )' aria-label='Reply to stuporglue'>Reply</a>			</div><!-- .reply -->
+		</div><!-- #comment-##  -->
+	
+		</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+		<li class="comment even thread-even depth-1" id="li-comment-603">
+			<div id="comment-603">
+			<div class="comment-author vcard">
+								<cite class="fn"><a onclick="javascript:pageTracker._trackPageview('/outgoing/pdg5.com');"  href='http://pdg5.com' rel='external nofollow' class='url'>peter</a></cite> <span class="says">says:</span>			</div><!-- .comment-author .vcard -->
+				
+			<div class="comment-meta commentmetadata"><a href="https://stuporglue.org/writing-a-daemon-with-php/#comment-603">
+				March 10, 2011 at 10:07 pm</a>			</div><!-- .comment-meta .commentmetadata -->
+	
+			<div class="comment-body"><p>Your code is very useful. However, I want to let the parent process know the exit status of children. e.g. The child exit with an integer like exit(0) or exit(1), etc. Is it possible for the parent to catch that integer?  Any other way to let the parent know how child finishes its job?</p>
+<p>Also, in the function: $dead_and_gone = pcntl_waitpid(-1,$status,WNOHANG);<br />
+what is in the variable $status? </p>
+<p>Thanks!</p>
+<p>peter</p>
+</div>
+	
+			<div class="reply">
+				<a rel='nofollow' class='comment-reply-link' href='https://stuporglue.org/writing-a-daemon-with-php/?replytocom=603#respond' onclick='return addComment.moveForm( "comment-603", "603", "respond", "196" )' aria-label='Reply to peter'>Reply</a>			</div><!-- .reply -->
+		</div><!-- #comment-##  -->
+	
+		<ul class="children">
+		<li class="comment byuser comment-author-stuporglue bypostauthor odd alt depth-2" id="li-comment-604">
+			<div id="comment-604">
+			<div class="comment-author vcard">
+								<cite class="fn"><a href='https://stuporglue.org/' rel='external nofollow' class='url'>stuporglue</a></cite> <span class="says">says:</span>			</div><!-- .comment-author .vcard -->
+				
+			<div class="comment-meta commentmetadata"><a href="https://stuporglue.org/writing-a-daemon-with-php/#comment-604">
+				March 10, 2011 at 11:04 pm</a>			</div><!-- .comment-meta .commentmetadata -->
+	
+			<div class="comment-body"><p>I haven&#8217;t needed to get the process exit code for anything yet, but pcntl_waitpid says this: </p>
+<blockquote><p>pcntl_waitpid() will store status information in the status parameter which can be evaluated using the following functions: pcntl_wifexited(), pcntl_wifstopped(), pcntl_wifsignaled(), pcntl_wexitstatus(), pcntl_wtermsig() and pcntl_wstopsig(). </p></blockquote>
+<p>You can pass $status into pcntl_wexitstatus to get the process code to get the exit code, if pcntl_wifexited returns TRUE. </p>
+<p>The PHP docs will give you more details, examples and caveats <a onclick="javascript:pageTracker._trackPageview('/outgoing/www.php.net/manual/en/function.pcntl-wifexited.php');"  href="http://www.php.net/manual/en/function.pcntl-wifexited.php" rel="nofollow">http://www.php.net/manual/en/function.pcntl-wifexited.php</a></p>
+</div>
+	
+			<div class="reply">
+				<a rel='nofollow' class='comment-reply-link' href='https://stuporglue.org/writing-a-daemon-with-php/?replytocom=604#respond' onclick='return addComment.moveForm( "comment-604", "604", "respond", "196" )' aria-label='Reply to stuporglue'>Reply</a>			</div><!-- .reply -->
+		</div><!-- #comment-##  -->
+	
+		</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+		<li class="post pingback">
+			<p>Pingback: <a href='https://stuporglue.org/adding-pcntl-support-to-a-shared-host/' rel='external nofollow' class='url'>Adding Pcntl Support to a Shared Host | Stuporglue.org</a></p>
+		</li><!-- #comment-## -->
+		<li class="post pingback">
+			<p>Pingback: <a onclick="javascript:pageTracker._trackPageview('/outgoing/abnercyh.wordpress.com/2011/06/18/creating-a-daemon/');"  href='http://abnercyh.wordpress.com/2011/06/18/creating-a-daemon/' rel='external nofollow' class='url'>Creating a daemon &laquo; Abner&#8217;s Postgraduate Days</a></p>
+		</li><!-- #comment-## -->
+		<li class="comment even thread-odd thread-alt depth-1" id="li-comment-803">
+			<div id="comment-803">
+			<div class="comment-author vcard">
+								<cite class="fn"><a onclick="javascript:pageTracker._trackPageview('/outgoing/www.pixie.co.ke');"  href='http://www.pixie.co.ke' rel='external nofollow' class='url'>Brian</a></cite> <span class="says">says:</span>			</div><!-- .comment-author .vcard -->
+				
+			<div class="comment-meta commentmetadata"><a href="https://stuporglue.org/writing-a-daemon-with-php/#comment-803">
+				December 27, 2011 at 2:58 pm</a>			</div><!-- .comment-meta .commentmetadata -->
+	
+			<div class="comment-body"><p>Hi Stuporglue,</p>
+<p>Great write up. I have been using php daemons for some time now but this article has given me ideas about something I was scratching my head over. Thanks.</p>
+<p>@Jacob<br />
+Referring to : &#8220;If you daemonize, close your terminal, and then your daemon tries to print, you’re going to have problems. Your daemon will still try to print to STDOUT, which will now be closed. This will likely cause it to fail in an unpleasant manner.&#8221;</p>
+<p>When you write daemons, you really should not be putting print or echo statements in your code at all. You should write to a log file if you need output using error_log.</p>
+<p>Brian</p>
+</div>
+	
+			<div class="reply">
+				<a rel='nofollow' class='comment-reply-link' href='https://stuporglue.org/writing-a-daemon-with-php/?replytocom=803#respond' onclick='return addComment.moveForm( "comment-803", "803", "respond", "196" )' aria-label='Reply to Brian'>Reply</a>			</div><!-- .reply -->
+		</div><!-- #comment-##  -->
+	
+		</li><!-- #comment-## -->
+		<li class="comment odd alt thread-even depth-1" id="li-comment-860">
+			<div id="comment-860">
+			<div class="comment-author vcard">
+								<cite class="fn"><a onclick="javascript:pageTracker._trackPageview('/outgoing/www.trondhuso.no');"  href='http://www.trondhuso.no' rel='external nofollow' class='url'>Trond</a></cite> <span class="says">says:</span>			</div><!-- .comment-author .vcard -->
+				
+			<div class="comment-meta commentmetadata"><a href="https://stuporglue.org/writing-a-daemon-with-php/#comment-860">
+				February 14, 2012 at 9:02 am</a>			</div><!-- .comment-meta .commentmetadata -->
+	
+			<div class="comment-body"><p>Great article. I&#8217;ve just looked at your code, but I will certainly test this later.<br />
+When it comes to logging, check this out: <a onclick="javascript:pageTracker._trackPageview('/outgoing/logging.apache.org/log4php/');"  href="http://logging.apache.org/log4php/" rel="nofollow">http://logging.apache.org/log4php/</a></p>
+<p>I am using log4net quite a lot in .Net applications, and if the php-version is as good as the log4net, then you have a good logging library to use.</p>
+</div>
+	
+			<div class="reply">
+				<a rel='nofollow' class='comment-reply-link' href='https://stuporglue.org/writing-a-daemon-with-php/?replytocom=860#respond' onclick='return addComment.moveForm( "comment-860", "860", "respond", "196" )' aria-label='Reply to Trond'>Reply</a>			</div><!-- .reply -->
+		</div><!-- #comment-##  -->
+	
+		</li><!-- #comment-## -->
+		<li class="comment even thread-odd thread-alt depth-1" id="li-comment-888">
+			<div id="comment-888">
+			<div class="comment-author vcard">
+								<cite class="fn">John</cite> <span class="says">says:</span>			</div><!-- .comment-author .vcard -->
+				
+			<div class="comment-meta commentmetadata"><a href="https://stuporglue.org/writing-a-daemon-with-php/#comment-888">
+				March 9, 2012 at 5:05 pm</a>			</div><!-- .comment-meta .commentmetadata -->
+	
+			<div class="comment-body"><p>Hi Stuporglue,</p>
+<p>I was wondering, in the file &#8220;worker.php&#8221;, how would I access the arguments I want to pass through from the controller?</p>
+</div>
+	
+			<div class="reply">
+				<a rel='nofollow' class='comment-reply-link' href='https://stuporglue.org/writing-a-daemon-with-php/?replytocom=888#respond' onclick='return addComment.moveForm( "comment-888", "888", "respond", "196" )' aria-label='Reply to John'>Reply</a>			</div><!-- .reply -->
+		</div><!-- #comment-##  -->
+	
+		<ul class="children">
+		<li class="comment byuser comment-author-stuporglue bypostauthor odd alt depth-2" id="li-comment-890">
+			<div id="comment-890">
+			<div class="comment-author vcard">
+								<cite class="fn"><a href='https://stuporglue.org/' rel='external nofollow' class='url'>stuporglue</a></cite> <span class="says">says:</span>			</div><!-- .comment-author .vcard -->
+				
+			<div class="comment-meta commentmetadata"><a href="https://stuporglue.org/writing-a-daemon-with-php/#comment-890">
+				March 9, 2012 at 6:26 pm</a>			</div><!-- .comment-meta .commentmetadata -->
+	
+			<div class="comment-body"><p>Hi John, </p>
+<p>Programs launched with pcntl_exec($program,$arguments); are run as command line scripts, so you&#8217;ll access the arguments via <a onclick="javascript:pageTracker._trackPageview('/outgoing/www.php.net/manual/en/reserved.variables.argv.php');"  href="http://www.php.net/manual/en/reserved.variables.argv.php" title="PHP $argv" target="_blank" rel="nofollow">$argv</a>.</p>
+<p>You can launch non-PHP programs too. </p>
+<p>If your script is PHP you&#8217;ll either need to set the <a onclick="javascript:pageTracker._trackPageview('/outgoing/en.wikipedia.org/wiki/Shebang_%28Unix%29');"  href="https://en.wikipedia.org/wiki/Shebang_%28Unix%29" title="Shebang in scripts" target="_blank" rel="nofollow">shebang</a> to use PHP, or set $program to /usr/bin/php and have the actual script be one of the arguments.</p>
+</div>
+	
+			<div class="reply">
+				<a rel='nofollow' class='comment-reply-link' href='https://stuporglue.org/writing-a-daemon-with-php/?replytocom=890#respond' onclick='return addComment.moveForm( "comment-890", "890", "respond", "196" )' aria-label='Reply to stuporglue'>Reply</a>			</div><!-- .reply -->
+		</div><!-- #comment-##  -->
+	
+		</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+		<li class="comment even thread-even depth-1" id="li-comment-1337">
+			<div id="comment-1337">
+			<div class="comment-author vcard">
+								<cite class="fn">Ron</cite> <span class="says">says:</span>			</div><!-- .comment-author .vcard -->
+				
+			<div class="comment-meta commentmetadata"><a href="https://stuporglue.org/writing-a-daemon-with-php/#comment-1337">
+				September 17, 2012 at 5:04 am</a>			</div><!-- .comment-meta .commentmetadata -->
+	
+			<div class="comment-body"><p>1. Don&#8217;t need &#8220;php -q&#8221; for PHP CLI.<br />
+2. You really want to fork twice.<br />
+<code><br />
+   $pid = pcntl_fork();<br />
+   if($pid){<br />
+    // Only the parent will know the PID. Kids aren't self-aware<br />
+    // Parent says goodbye!<br />
+    print "\tParent : " . getmypid() . " exiting\n";<br />
+    exit();<br />
+   }<br />
+   // Dissociate from controlling terminal, become session leader<br />
+  if (posix_setsid() === -1) {<br />
+	die("Error!\n");<br />
+   }<br />
+   usleep(100000); </p>
+<p>   // Fork again as session leader<br />
+   $pid = pcntl_fork();<br />
+</code><br />
+3. To deal with the &#8220;stray I/O&#8221;, once you&#8217;ve closed the standard file descriptors, open them again, pointed to /dev/null<br />
+<code><br />
+	fclose(STDIN);<br />
+	fclose(STDOUT);<br />
+	fclose(STDERR);</p>
+<p>	$stdin = fopen('/dev/null', 'r'); // set fd/0<br />
+	$stdout = fopen('/dev/null', 'w'); // set fd/1<br />
+	$stderr = fopen('php://stdout', 'w'); // hack to duplicate fd/1 to 2<br />
+</code></p>
+</div>
+	
+			<div class="reply">
+				<a rel='nofollow' class='comment-reply-link' href='https://stuporglue.org/writing-a-daemon-with-php/?replytocom=1337#respond' onclick='return addComment.moveForm( "comment-1337", "1337", "respond", "196" )' aria-label='Reply to Ron'>Reply</a>			</div><!-- .reply -->
+		</div><!-- #comment-##  -->
+	
+		</li><!-- #comment-## -->
+		<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-1901">
+			<div id="comment-1901">
+			<div class="comment-author vcard">
+								<cite class="fn">Anastasia</cite> <span class="says">says:</span>			</div><!-- .comment-author .vcard -->
+				
+			<div class="comment-meta commentmetadata"><a href="https://stuporglue.org/writing-a-daemon-with-php/#comment-1901">
+				February 4, 2013 at 10:19 am</a>			</div><!-- .comment-meta .commentmetadata -->
+	
+			<div class="comment-body"><p>Thanks for such useful article. I have such question: How can I send the data to the daemon. Not signal, but some array of data? In your example, you have empty $arguments array. How will you populate it, in case needed?<br />
+Thanks again!</p>
+</div>
+	
+			<div class="reply">
+				<a rel='nofollow' class='comment-reply-link' href='https://stuporglue.org/writing-a-daemon-with-php/?replytocom=1901#respond' onclick='return addComment.moveForm( "comment-1901", "1901", "respond", "196" )' aria-label='Reply to Anastasia'>Reply</a>			</div><!-- .reply -->
+		</div><!-- #comment-##  -->
+	
+		<ul class="children">
+		<li class="comment byuser comment-author-stuporglue bypostauthor even depth-2" id="li-comment-1902">
+			<div id="comment-1902">
+			<div class="comment-author vcard">
+								<cite class="fn"><a href='https://stuporglue.org/' rel='external nofollow' class='url'>stuporglue</a></cite> <span class="says">says:</span>			</div><!-- .comment-author .vcard -->
+				
+			<div class="comment-meta commentmetadata"><a href="https://stuporglue.org/writing-a-daemon-with-php/#comment-1902">
+				February 4, 2013 at 10:49 am</a>			</div><!-- .comment-meta .commentmetadata -->
+	
+			<div class="comment-body"><p>$arguments is in there because pcntl_exec can take an array of arguments for the program which is executed. </p>
+<p>There are several ways you might communicate with the daemon, it all depends what you&#8217;re looking for. </p>
+<p>Personally, I have a database set up which accepts job requests from users. The daemon queries the database every time through the while(TRUE) loop to check for more jobs (with a sleep(3) at the end of the while loop so it&#8217;s not always running). </p>
+<p>You could also write to a config file (or somewhere else), then have a signal handler and send the daemon a signal to read or re-read those files. </p>
+<p>You could also look into using a named pipe which would let other processes write to the pipe which the daemon could read from on every loop. </p>
+<p>Sockets might also do the job, if that&#8217;s what needed.</p>
+</div>
+	
+			<div class="reply">
+				<a rel='nofollow' class='comment-reply-link' href='https://stuporglue.org/writing-a-daemon-with-php/?replytocom=1902#respond' onclick='return addComment.moveForm( "comment-1902", "1902", "respond", "196" )' aria-label='Reply to stuporglue'>Reply</a>			</div><!-- .reply -->
+		</div><!-- #comment-##  -->
+	
+		</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+		<li class="comment odd alt thread-even depth-1" id="li-comment-4133">
+			<div id="comment-4133">
+			<div class="comment-author vcard">
+								<cite class="fn">icecream</cite> <span class="says">says:</span>			</div><!-- .comment-author .vcard -->
+				
+			<div class="comment-meta commentmetadata"><a href="https://stuporglue.org/writing-a-daemon-with-php/#comment-4133">
+				May 22, 2013 at 10:18 pm</a>			</div><!-- .comment-meta .commentmetadata -->
+	
+			<div class="comment-body"><p>Use this will produce a zombie process in linux, It is resonable? It will waste my resources?</p>
+</div>
+	
+			<div class="reply">
+				<a rel='nofollow' class='comment-reply-link' href='https://stuporglue.org/writing-a-daemon-with-php/?replytocom=4133#respond' onclick='return addComment.moveForm( "comment-4133", "4133", "respond", "196" )' aria-label='Reply to icecream'>Reply</a>			</div><!-- .reply -->
+		</div><!-- #comment-##  -->
+	
+		<ul class="children">
+		<li class="comment byuser comment-author-stuporglue bypostauthor even depth-2" id="li-comment-4166">
+			<div id="comment-4166">
+			<div class="comment-author vcard">
+								<cite class="fn"><a href='https://stuporglue.org/' rel='external nofollow' class='url'>stuporglue</a></cite> <span class="says">says:</span>			</div><!-- .comment-author .vcard -->
+				
+			<div class="comment-meta commentmetadata"><a href="https://stuporglue.org/writing-a-daemon-with-php/#comment-4166">
+				May 23, 2013 at 7:32 am</a>			</div><!-- .comment-meta .commentmetadata -->
+	
+			<div class="comment-body"><p>It shouldn&#8217;t create a zombie, but should produce an orphan, which will be adopted by init. </p>
+<p>The child processes which the daemon creates should never become zombies either since we have this loop at the end of our work loop: </p>
+<p><code><br />
+ $dead_and_gone = pcntl_waitpid(-1,$status,WNOHANG);<br />
+ while($dead_and_gone > 0){<br />
+ // Remove the gone pid from the array<br />
+ unset($pids[array_search($dead_and_gone,$pids)]); </p>
+<p> // Look for another one<br />
+ $dead_and_gone = pcntl_waitpid(-1,$status,WNOHANG);<br />
+ }<br />
+</code><br />
+I ran a PHP daemon like this for about 18 months for a project I did and didn&#8217;t have any problems with zombies.</p>
+</div>
+	
+			<div class="reply">
+				<a rel='nofollow' class='comment-reply-link' href='https://stuporglue.org/writing-a-daemon-with-php/?replytocom=4166#respond' onclick='return addComment.moveForm( "comment-4166", "4166", "respond", "196" )' aria-label='Reply to stuporglue'>Reply</a>			</div><!-- .reply -->
+		</div><!-- #comment-##  -->
+	
+		</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+		<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-4134">
+			<div id="comment-4134">
+			<div class="comment-author vcard">
+								<cite class="fn">icecream</cite> <span class="says">says:</span>			</div><!-- .comment-author .vcard -->
+				
+			<div class="comment-meta commentmetadata"><a href="https://stuporglue.org/writing-a-daemon-with-php/#comment-4134">
+				May 22, 2013 at 10:22 pm</a>			</div><!-- .comment-meta .commentmetadata -->
+	
+			<div class="comment-body"><p>PHP use while(true) OR Python use while true:? Which will be better for daemon process?</p>
+</div>
+	
+			<div class="reply">
+				<a rel='nofollow' class='comment-reply-link' href='https://stuporglue.org/writing-a-daemon-with-php/?replytocom=4134#respond' onclick='return addComment.moveForm( "comment-4134", "4134", "respond", "196" )' aria-label='Reply to icecream'>Reply</a>			</div><!-- .reply -->
+		</div><!-- #comment-##  -->
+	
+		<ul class="children">
+		<li class="comment byuser comment-author-stuporglue bypostauthor even depth-2" id="li-comment-4167">
+			<div id="comment-4167">
+			<div class="comment-author vcard">
+								<cite class="fn"><a href='https://stuporglue.org/' rel='external nofollow' class='url'>stuporglue</a></cite> <span class="says">says:</span>			</div><!-- .comment-author .vcard -->
+				
+			<div class="comment-meta commentmetadata"><a href="https://stuporglue.org/writing-a-daemon-with-php/#comment-4167">
+				May 23, 2013 at 7:36 am</a>			</div><!-- .comment-meta .commentmetadata -->
+	
+			<div class="comment-body"><p>PHP isn&#8217;t typically used for daemon processes. I used it because the daemon needed to use the same libraries that our main project was using. </p>
+<p>If I were writing a stand-alone daemon that didn&#8217;t need to integrate with the rest of a project, I&#8217;d probably use Perl, Python or even Bash if the task were simple enough. Python and Perl both have daemon libraries that will handle the daemonizing process for you.</p>
+</div>
+	
+			<div class="reply">
+				<a rel='nofollow' class='comment-reply-link' href='https://stuporglue.org/writing-a-daemon-with-php/?replytocom=4167#respond' onclick='return addComment.moveForm( "comment-4167", "4167", "respond", "196" )' aria-label='Reply to stuporglue'>Reply</a>			</div><!-- .reply -->
+		</div><!-- #comment-##  -->
+	
+		</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+		<li class="comment odd alt thread-even depth-1" id="li-comment-6534">
+			<div id="comment-6534">
+			<div class="comment-author vcard">
+								<cite class="fn"><a onclick="javascript:pageTracker._trackPageview('/outgoing/www.5mins.co.uk');"  href='http://www.5mins.co.uk' rel='external nofollow' class='url'>Romac</a></cite> <span class="says">says:</span>			</div><!-- .comment-author .vcard -->
+				
+			<div class="comment-meta commentmetadata"><a href="https://stuporglue.org/writing-a-daemon-with-php/#comment-6534">
+				April 3, 2017 at 8:48 am</a>			</div><!-- .comment-meta .commentmetadata -->
+	
+			<div class="comment-body"><p>Thanks for this &#8211; It&#8217;s still useful 7 years on! It helped me build a test rig to investigate a problem I found in an inherited PHP project.</p>
+<p>In the daemon loop we had a sleep(60) to make the daemon poll every 60s; we were also capturing SIGCHLD for notification of when the child closed (typically after 1-10s). The problem was that the daemon was not waiting 60s to poll unless there was nothing to do. Turns out that SIGCHLD cancels the running sleep() somehow. Solution: not very elegant, but sleep(1) 60 times and then only 1s of sleep is lost.</p>
+</div>
+	
+			<div class="reply">
+				<a rel='nofollow' class='comment-reply-link' href='https://stuporglue.org/writing-a-daemon-with-php/?replytocom=6534#respond' onclick='return addComment.moveForm( "comment-6534", "6534", "respond", "196" )' aria-label='Reply to Romac'>Reply</a>			</div><!-- .reply -->
+		</div><!-- #comment-##  -->
+	
+		</li><!-- #comment-## -->
+			</ol>
+
+	
+
+
+	<div id="respond" class="comment-respond">
+		<h3 id="reply-title" class="comment-reply-title">Leave a Reply <small><a rel="nofollow" id="cancel-comment-reply-link" href="/writing-a-daemon-with-php/#respond" style="display:none;">Cancel reply</a></small></h3>			<form action="https://stuporglue.org/wp-comments-post.php" method="post" id="commentform" class="comment-form">
+				<p class="comment-notes"><span id="email-notes">Your email address will not be published.</span> Required fields are marked <span class="required">*</span></p><p class="comment-form-comment"><label for="comment">Comment</label> <textarea id="comment" name="comment" cols="45" rows="8" maxlength="65525" aria-required="true" required="required"></textarea></p><p class="comment-form-author"><label for="author">Name <span class="required">*</span></label> <input id="author" name="author" type="text" value="" size="30" maxlength="245" aria-required='true' required='required' /></p>
+<p class="comment-form-email"><label for="email">Email <span class="required">*</span></label> <input id="email" name="email" type="text" value="" size="30" maxlength="100" aria-describedby="email-notes" aria-required='true' required='required' /></p>
+<p class="comment-form-url"><label for="url">Website</label> <input id="url" name="url" type="text" value="" size="30" maxlength="200" /></p>
+<p class="form-submit"><input name="submit" type="submit" id="submit" class="submit" value="Post Comment" /> <input type='hidden' name='comment_post_ID' value='196' id='comment_post_ID' />
+<input type='hidden' name='comment_parent' id='comment_parent' value='0' />
+</p><p style="display: none;"><input type="hidden" id="akismet_comment_nonce" name="akismet_comment_nonce" value="84657c09f5" /></p>		<p class="antispam-group antispam-group-q" style="clear: both;">
+			<label>Current ye@r <span class="required">*</span></label>
+			<input type="hidden" name="antspm-a" class="antispam-control antispam-control-a" value="2018" />
+			<input type="text" name="antspm-q" class="antispam-control antispam-control-q" value="4.4" autocomplete="off" />
+		</p>
+		<p class="antispam-group antispam-group-e" style="display: none;">
+			<label>Leave this field empty</label>
+			<input type="text" name="antspm-e-email-url-website" class="antispam-control antispam-control-e" value="" autocomplete="off" />
+		</p>
+<p style="display: none;"><input type="hidden" id="ak_js" name="ak_js" value="70"/></p>			</form>
+			</div><!-- #respond -->
+	
+</div><!-- #comments -->
+
+
+		</div><!-- #main -->
+			<div id="sidebar" class="widget-area twocol last " role="complementary">
+			<ul class="xoxo">
+
+<li id="search-5" class="widget-container widget_search"><h3 class="widget-title">Search</h3><form role="search" method="get" id="searchform" class="searchform" action="https://stuporglue.org/">
+				<div>
+					<label class="screen-reader-text" for="s">Search for:</label>
+					<input type="text" value="" name="s" id="s" />
+					<input type="submit" id="searchsubmit" value="Search" />
+				</div>
+			</form></li>		<li id="recent-posts-4" class="widget-container widget_recent_entries">		<h3 class="widget-title">Most Recent Stuff</h3>		<ul>
+					<li>
+				<a href="https://stuporglue.org/spokeshave-spoon-with-kolrosing/">Spokeshave Spoon with Kolrosing</a>
+						</li>
+					<li>
+				<a href="https://stuporglue.org/waterlox-kitchen-countertops-almost-three-years-later/">Waterlox Kitchen Countertops: Almost Three Years Later</a>
+						</li>
+					<li>
+				<a href="https://stuporglue.org/milling-cherry-logs-with-a-scaffolding-jack-chainsaw-mill/">Milling Cherry Logs With A Scaffolding Jack Chainsaw Mill</a>
+						</li>
+					<li>
+				<a href="https://stuporglue.org/a-hewn-maple-bowl/">A Hewn Maple Bowl</a>
+						</li>
+					<li>
+				<a href="https://stuporglue.org/maple-bowl-with-walnut-handles/">Maple Bowl with Walnut Handles</a>
+						</li>
+				</ul>
+		</li>		<li id="text-5" class="widget-container widget_text">			<div class="textwidget"><a href="http://mormon.org/me/4FX1/" target='_blank'><img src="https://stuporglue.org/downloads/rectangle-im-a-mormon-brown.png" alt="I'm a Mormon."/></a></div>
+		</li><li id="archives-3" class="widget-container widget_archive"><h3 class="widget-title">Archives</h3>		<label class="screen-reader-text" for="archives-dropdown-3">Archives</label>
+		<select id="archives-dropdown-3" name="archive-dropdown" onchange='document.location.href=this.options[this.selectedIndex].value;'>
+			
+			<option value="">Select Month</option>
+				<option value='https://stuporglue.org/2017/10/'> October 2017 &nbsp;(2)</option>
+	<option value='https://stuporglue.org/2017/06/'> June 2017 &nbsp;(1)</option>
+	<option value='https://stuporglue.org/2017/05/'> May 2017 &nbsp;(1)</option>
+	<option value='https://stuporglue.org/2017/04/'> April 2017 &nbsp;(1)</option>
+	<option value='https://stuporglue.org/2016/11/'> November 2016 &nbsp;(1)</option>
+	<option value='https://stuporglue.org/2016/09/'> September 2016 &nbsp;(4)</option>
+	<option value='https://stuporglue.org/2016/08/'> August 2016 &nbsp;(1)</option>
+	<option value='https://stuporglue.org/2016/06/'> June 2016 &nbsp;(3)</option>
+	<option value='https://stuporglue.org/2016/05/'> May 2016 &nbsp;(1)</option>
+	<option value='https://stuporglue.org/2016/01/'> January 2016 &nbsp;(3)</option>
+	<option value='https://stuporglue.org/2015/12/'> December 2015 &nbsp;(2)</option>
+	<option value='https://stuporglue.org/2015/09/'> September 2015 &nbsp;(2)</option>
+	<option value='https://stuporglue.org/2015/08/'> August 2015 &nbsp;(1)</option>
+	<option value='https://stuporglue.org/2015/06/'> June 2015 &nbsp;(1)</option>
+	<option value='https://stuporglue.org/2015/05/'> May 2015 &nbsp;(1)</option>
+	<option value='https://stuporglue.org/2015/04/'> April 2015 &nbsp;(1)</option>
+	<option value='https://stuporglue.org/2015/01/'> January 2015 &nbsp;(3)</option>
+	<option value='https://stuporglue.org/2014/11/'> November 2014 &nbsp;(3)</option>
+	<option value='https://stuporglue.org/2014/07/'> July 2014 &nbsp;(2)</option>
+	<option value='https://stuporglue.org/2014/06/'> June 2014 &nbsp;(1)</option>
+	<option value='https://stuporglue.org/2014/04/'> April 2014 &nbsp;(2)</option>
+	<option value='https://stuporglue.org/2014/03/'> March 2014 &nbsp;(1)</option>
+	<option value='https://stuporglue.org/2014/01/'> January 2014 &nbsp;(2)</option>
+	<option value='https://stuporglue.org/2013/12/'> December 2013 &nbsp;(5)</option>
+	<option value='https://stuporglue.org/2013/11/'> November 2013 &nbsp;(3)</option>
+	<option value='https://stuporglue.org/2013/10/'> October 2013 &nbsp;(8)</option>
+	<option value='https://stuporglue.org/2013/09/'> September 2013 &nbsp;(3)</option>
+	<option value='https://stuporglue.org/2013/08/'> August 2013 &nbsp;(4)</option>
+	<option value='https://stuporglue.org/2013/06/'> June 2013 &nbsp;(1)</option>
+	<option value='https://stuporglue.org/2013/05/'> May 2013 &nbsp;(3)</option>
+	<option value='https://stuporglue.org/2013/04/'> April 2013 &nbsp;(4)</option>
+	<option value='https://stuporglue.org/2013/03/'> March 2013 &nbsp;(4)</option>
+	<option value='https://stuporglue.org/2013/02/'> February 2013 &nbsp;(1)</option>
+	<option value='https://stuporglue.org/2013/01/'> January 2013 &nbsp;(1)</option>
+	<option value='https://stuporglue.org/2012/12/'> December 2012 &nbsp;(7)</option>
+	<option value='https://stuporglue.org/2012/11/'> November 2012 &nbsp;(2)</option>
+	<option value='https://stuporglue.org/2012/10/'> October 2012 &nbsp;(4)</option>
+	<option value='https://stuporglue.org/2012/08/'> August 2012 &nbsp;(1)</option>
+	<option value='https://stuporglue.org/2012/07/'> July 2012 &nbsp;(2)</option>
+	<option value='https://stuporglue.org/2012/06/'> June 2012 &nbsp;(3)</option>
+	<option value='https://stuporglue.org/2012/05/'> May 2012 &nbsp;(13)</option>
+	<option value='https://stuporglue.org/2012/04/'> April 2012 &nbsp;(12)</option>
+	<option value='https://stuporglue.org/2012/03/'> March 2012 &nbsp;(5)</option>
+	<option value='https://stuporglue.org/2011/12/'> December 2011 &nbsp;(2)</option>
+	<option value='https://stuporglue.org/2011/11/'> November 2011 &nbsp;(2)</option>
+	<option value='https://stuporglue.org/2011/10/'> October 2011 &nbsp;(4)</option>
+	<option value='https://stuporglue.org/2011/09/'> September 2011 &nbsp;(7)</option>
+	<option value='https://stuporglue.org/2011/08/'> August 2011 &nbsp;(3)</option>
+	<option value='https://stuporglue.org/2011/07/'> July 2011 &nbsp;(7)</option>
+	<option value='https://stuporglue.org/2011/06/'> June 2011 &nbsp;(8)</option>
+	<option value='https://stuporglue.org/2011/05/'> May 2011 &nbsp;(17)</option>
+	<option value='https://stuporglue.org/2011/04/'> April 2011 &nbsp;(12)</option>
+	<option value='https://stuporglue.org/2011/03/'> March 2011 &nbsp;(6)</option>
+	<option value='https://stuporglue.org/2011/02/'> February 2011 &nbsp;(1)</option>
+	<option value='https://stuporglue.org/2011/01/'> January 2011 &nbsp;(5)</option>
+	<option value='https://stuporglue.org/2010/12/'> December 2010 &nbsp;(3)</option>
+	<option value='https://stuporglue.org/2010/11/'> November 2010 &nbsp;(2)</option>
+	<option value='https://stuporglue.org/2010/10/'> October 2010 &nbsp;(7)</option>
+	<option value='https://stuporglue.org/2010/09/'> September 2010 &nbsp;(5)</option>
+	<option value='https://stuporglue.org/2010/08/'> August 2010 &nbsp;(3)</option>
+	<option value='https://stuporglue.org/2010/07/'> July 2010 &nbsp;(8)</option>
+	<option value='https://stuporglue.org/2010/06/'> June 2010 &nbsp;(5)</option>
+	<option value='https://stuporglue.org/2010/05/'> May 2010 &nbsp;(15)</option>
+	<option value='https://stuporglue.org/2010/04/'> April 2010 &nbsp;(12)</option>
+	<option value='https://stuporglue.org/2010/03/'> March 2010 &nbsp;(62)</option>
+	<option value='https://stuporglue.org/2005/07/'> July 2005 &nbsp;(1)</option>
+
+		</select>
+		</li>			</ul>
+			
+			<!-- Unified into one widget area, as of 1.1.8 -->
+								
+				<div class="widget-area" role="complementary">
+					<ul class="xoxo">
+						<li id="linkcat-24" class="widget-container widget_links"><h3 class="widget-title">Family and Friends</h3>
+	<ul class='xoxo blogroll'>
+<li><a href="http://michaelandcaroline.blogspot.com/" rel="contact met spouse sweetheart" title="Our family blog" target="_blank">Michael and Caroline</a></li>
+
+	</ul>
+</li>
+<li id="linkcat-25" class="widget-container widget_links"><h3 class="widget-title">Sources of Awesomeness</h3>
+	<ul class='xoxo blogroll'>
+<li><a href="http://www.mormon.org/bookofmormon" title="Get a free book of Mormon from the Church of Jesus Christ of Latter-Day Saints" target="_blank">Free Book of Mormon</a></li>
+<li><a href="http://artofmanliness.com/" title="A fun manly traditions blog" target="_blank">The Art of Manliness</a></li>
+
+	</ul>
+</li>
+					</ul>
+				</div><!-- #secondary .widget-area -->
+			
+					</div><!-- #primary .widget-area -->
+				</div><!-- #container -->
+			<footer id="footer" role="contentinfo" class="row">
+				<div id="footerbar" class="twelvecol last">
+									</div><!-- #footerbar -->
+				<div id="colophon" class="twelvecol last">
+					<div id="site-info" class="sixcol">
+						<a href="https://stuporglue.org/" title="Stuporglue.org" rel="home">
+							Stuporglue.org						</a>
+					</div><!-- #site-info -->
+					<div id="site-generator" class="sixcol last">
+												<a href="http://wordpress.org/" title="Semantic Personal Publishing Platform">Proudly powered by WordPress.</a>
+					</div><!-- #site-generator -->
+				</div><!-- #colophon -->
+			</footer><!-- #footer -->
+		</div><!-- #wrapper -->
+		
+<!-- tracker added by Ultimate Google Analytics plugin v1.6.0: http://www.oratransplant.nl/uga -->
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-1692489-5");
+pageTracker._initData();
+pageTracker._trackPageview();
+</script>
+<script type='text/javascript' src='https://stuporglue.org/wp-includes/js/comment-reply.min.js?ver=4.8.5'></script>
+<script type='text/javascript' src='https://stuporglue.org/wp-content/plugins/anti-spam/js/anti-spam-4.4.js'></script>
+<script type='text/javascript' src='https://stuporglue.org/wp-includes/js/wp-embed.min.js?ver=4.8.5'></script>
+<script type='text/javascript' src='https://stuporglue.org/wp-content/plugins/akismet/_inc/form.js?ver=4.0'></script>
+	</body>
+</html>
