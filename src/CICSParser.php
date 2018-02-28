@@ -18,6 +18,8 @@ include "CICSProtocol.php";
  ****************************************************************/
 
 function cicsResponseParser($serial) {
+global $DEBUG;
+global $CICSParserLog;
 
 printf("Launching CICSParser 1.0\r\n");
 //$serial->sendMessage("CICSParser 1.0\r\n");
@@ -48,6 +50,9 @@ while(true)
         printf("Read %d bytes \r\n",strlen($line));
         printf("buffer: %s\r\n",$line);
         }
+
+	//Save to log file if debug mode enabled
+	if ($DEBUG) writeLogFile($line,$CICSParserLog);
 
         // Tokenize input buffer
         $x=0;

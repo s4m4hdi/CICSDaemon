@@ -6,11 +6,10 @@ declare(ticks = 1);
  *      Global Declarations
  */
 
-
-
+global $DEBUG;
+$DEBUG=true;	//true enables logging
 
 $__server_listening = true;	// parent process is a listener
-
 
 $MEMSIZE = 512;
 $SEMKEY = 1;	//semaphore key;
@@ -23,7 +22,15 @@ $pids = [];
 // parent pid
 global $parent_pid;
 
+global $CICSParserLog;
+global $CICSDaemonLog;
+global $CICSMessageHandlerLog;
+global $CICSSokHandlerLog;
 
+$CICSParserLog = "/data/log/CICSDaemon/CICSParser.log";
+$CICSDaemonLog="/data/log/CICSDaemon/CICSDaemon.log";
+$CICSMessageHandlerLog="/data/log/CICSDaemon/CICSMessageHandler.log";
+$CICSSokHandlerLog="/data/log/CICSDaemon/CICSSocketHandler.log";
 
 
 /*
