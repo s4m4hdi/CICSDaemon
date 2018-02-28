@@ -105,7 +105,10 @@ function interact($socket)
 	//read - update me later to buffer in missed data
 	$bytes = socket_recv($socket , $in_buffer, 1024, 0);
         //S_DebugPrint("Read $bytes bytes, input: (" . $in_buffer . ") . (" . $socket . ")");
-	sleep(10);
+	sleep(3);
+        $out_buffer = "The truth is out there!!\r\n";
+        $out_status = socket_send($socket,$out_buffer, strlen($out_buffer), MSG_EOF);
+
 	//}
 	
 }
