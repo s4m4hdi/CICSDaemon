@@ -1,4 +1,6 @@
 <?php
+// tick use required as of PHP 4.3.0
+declare(ticks = 1);
 
 /*****************************************************************************************
  *      Global Declarations
@@ -7,11 +9,12 @@
 
 
 
- $__server_listening=true;
+$__server_listening = true;	// parent process is a listener
 
 
-
-
+$MEMSIZE = 512;
+$SEMKEY = 1;	//semaphore key;
+$SHMKEY = 2; //shared memory key
 
 
 

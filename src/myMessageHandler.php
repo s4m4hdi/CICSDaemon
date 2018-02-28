@@ -35,7 +35,6 @@ $ssock = getStreamSocketPair();
         umask(0);
         //return posix_getpid();
 	fclose($ssock[1]);
-	setupSignalHandler();
 	fwrite($ssock[0],"messageHandler ok\r\n");
         messageHandler();
 	exit();

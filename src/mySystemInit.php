@@ -1,5 +1,8 @@
 <?php
 
+// tick use required as of PHP 4.3.0
+declare(ticks = 1);
+
 function initSerialPort()
 {
 //Let's start the class & init the serial port

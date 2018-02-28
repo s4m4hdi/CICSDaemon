@@ -1,18 +1,21 @@
 <?php
+// tick use required as of PHP 4.3.0
+declare(ticks = 1);
 
-function getSemaphore()
+function getSemaphore($SEMKEY)
 {
     // Get semaphore
     $sem_id = sem_get($SEMKEY, 1);
     if ($sem_id === false)
     {
         echo "Fail to get semaphore";
-        exit;
+        return(0);
     }
     else
-        echo "Got semaphore $sem_id.\n"
-
+	{	
+        echo "Got semaphore $sem_id.\n";
 	return $sem_id;
+	}
 }
 
 function acquireSemaphore($sem_id)
@@ -31,18 +34,18 @@ function acquireSemaphore($sem_id)
 	}	
 }
 
-function attacheSharedMem($sem_id)
+function attachSharedMem($sem_id,$SHMKEY,$MEMSIZE)
 {
     $shm_id =   shm_attach($SHMKEY, $MEMSIZE);
     if ($shm_id === false)
     {
         echo "Fail to attach shared memory.\n";
         sem_remove($sem_id);
-        return(false);
+        return(0);
     }
     else {
         echo "Success to attach shared memory : $shm_id.\n";
-	return (true);
+	return ($shm_id);
 	}
 }
 

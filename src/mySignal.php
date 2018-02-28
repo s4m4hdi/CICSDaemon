@@ -58,6 +58,8 @@ function signalHandler($signo) {
 
 	     // close serial port
 
+	     // remove semid & shmid
+
 	     // tell child threads to abort
              exit;
              break;

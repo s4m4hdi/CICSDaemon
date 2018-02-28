@@ -173,7 +173,6 @@ $ssock = getStreamSocketPair();
         //return posix_getpid();
 	fclose($ssock[1]);
 	fwrite($ssock[0],"server_loop ok\r\n");
-	setupSignalHandler();
 	server_loop("192.168.11.80","9650");
 	exit();
     }
