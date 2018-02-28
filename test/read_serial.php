@@ -70,6 +70,20 @@ while(true)
 	default;
 	} //end switch
 
+	switch ($response) {
+        case "SEL-CALL:":
+                print("[[ Sel-Call detected ]]\r\n\r\n" );
+                break;
+        default;
+        } //end switch
+
+	switch ($response) {
+        case "GPS-POSITION:":
+                print("[[ GPS-Position  detected ]]\r\n\r\n" );
+                break;
+        default;
+        } //end switch
+
 } //end while(true)
 
 // If you want to change the configuration, the device must be closed
