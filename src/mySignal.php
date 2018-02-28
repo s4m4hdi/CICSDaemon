@@ -82,6 +82,13 @@ function signalHandler($signo) {
 		$mysrvssock = $GLOBALS["srv_ssock"];
 		fclose($mymsgssock);
 		fclose($mysrvssock);
+
+		// Women and Children first (let them exit)
+		foreach($pids as $p){ pcntl_waitpid($p,$status); }
+		print "Parent : "
+		.  getmypid()
+		. " all my kids should be gone now. Exiting.\n";
+		exit();
 		}
 
 		// child cleanup - update me
