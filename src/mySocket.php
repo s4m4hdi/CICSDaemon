@@ -1,4 +1,6 @@
 <?php
+// tick use required as of PHP 4.3.0
+declare(ticks = 1);
 
 
 /**
@@ -99,10 +101,12 @@ function interact($socket)
 {
     /* TALK TO YOUR CLIENT */
 
+	//while(true) {
 	//read - update me later to buffer in missed data
-	//$bytes = socket_recv($socket , $in_buffer, 1024, 0);
+	$bytes = socket_recv($socket , $in_buffer, 1024, 0);
         //S_DebugPrint("Read $bytes bytes, input: (" . $in_buffer . ") . (" . $socket . ")");
-	while(true) sleep(10);
+	sleep(10);
+	//}
 	
 }
 
@@ -129,7 +133,36 @@ function become_daemon()
         chdir('/');
         umask(0);
         return posix_getpid();
+    }
+}
 
+function forkSocketHandler ()
+{
+//Listens for requests and forks on each connection
+$__server_listening = true;
+// fork the child and spawn message handler
+    $gpid2 = pcntl_fork();
+
+    if ($gpid2 == -1)
+    {
+        /* fork failed */
+        echo "fork failure!\n";
+        exit();
+    }elseif ($gpid2)
+    {
+        /* close the parent */
+        // parent will remain in this case - setup parent child stream
+    }else
+    {
+        /* grand child becomes new daemon process*/
+        posix_setsid();
+        chdir('/');
+        umask(0);
+        //return posix_getpid();
+	setupSignalHandler();
+        printf("Launching socket listener v1.0 %d\r\n",posix_getpid());
+	server_loop("192.168.11.80","9650");
+	exit();
     }
 }
  

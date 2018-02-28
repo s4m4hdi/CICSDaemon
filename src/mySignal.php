@@ -99,7 +99,7 @@ function setupSignalHandler() {
         pcntl_signal(SIGHUP,  "signalHandler");
         pcntl_signal(SIGUSR1, "signalHandler");
         pcntl_signal(SIGINT,  "signalHandler");
-        //pcntl_signal(SIGCHLD,  SIG_IGN);
+        pcntl_signal(SIGCHLD,  SIG_IGN);
 }
 
 ?>

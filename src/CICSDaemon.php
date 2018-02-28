@@ -26,8 +26,10 @@ include "PhpSerial.php";
 include "CICSParser.php";
 include "myError.php";
 //include "myDebug.php";
-//include "myGlobals.php";
+include "myGlobals.php";
 include "mySocket.php";
+include "myMessageHandler.php";
+include "mySystemInit.php";
 
 /*
  *****************************************************************************************
@@ -64,75 +66,13 @@ become_daemon();
 //change_identity(65534, 65534);
 
 //Fork Message Handler
-// fork the child and spawn message handler
-    $gpid1 = pcntl_fork();
-
-    if ($gpid1 == -1)
-    {
-        /* fork failed */
-        echo "fork failure!\n";
-        exit();
-    }elseif ($gpid1)
-    {
-        /* close the parent */
-        // parent will remain in this case - setup parent child stream
-    }else
-    {
-        /* grand child becomes new daemon process*/
-        posix_setsid();
-        chdir('/');
-        umask(0);
-        //return posix_getpid();
-	printf("Launching message handler v1.0 %d\r\n",posix_getpid());
-	while(true) sleep(10);
-	//call the messagehandler
-    }
+forkMessageHandler();
 
 //Fork Socket Handler
-//Listens for requests and forks on each connection
-$__server_listening = true;
-// fork the child and spawn message handler
-    $gpid2 = pcntl_fork();
-
-    if ($gpid2 == -1)
-    {
-        /* fork failed */
-        echo "fork failure!\n";
-        exit();
-    }elseif ($gpid2)
-    {
-        /* close the parent */
-        // parent will remain in this case - setup parent child stream
-    }else
-    {
-        /* grand child becomes new daemon process*/
-        posix_setsid();
-        chdir('/');
-        umask(0);
-        //return posix_getpid();
-        printf("Launching socket listener v1.0 %d\r\n",posix_getpid());
-        while(true) sleep(10);
-        //call the server loop
-    }
-
+forkSocketHandler();
 
 //Init serial port
-// Let's start the class
-$serial = new PhpSerial;
-
-// First we must specify the device. This works on both linux and windows (if
-// your linux serial device is /dev/ttyS0 for COM1, etc)
-$serial->deviceSet("/dev/serial0");
-
-// We can change the baud rate, parity, length, stop bits, flow control
-$serial->confBaudRate(9600);
-$serial->confParity("none");
-$serial->confCharacterLength(8);
-$serial->confStopBits(1);
-$serial->confFlowControl("none");
-
-// Then we need to open it
-$serial->deviceOpen();
+$serial=initSerialport();
 
 // Install signal handler
 // - note Phpserial.php throws an exec exception if this is done before serial init

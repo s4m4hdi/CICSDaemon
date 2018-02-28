@@ -4,6 +4,21 @@
  *      Global Declarations
  */
 
+
+
+
+ $__server_listening=true;
+
+
+
+
+
+
+
+
+
+
+/*
 $host = "192.168.1.201";
 $port = "9650";
 $max_clients = 10;
@@ -58,5 +73,5 @@ $msg_post = "Checking Postman";
 $initial_seq = "first";
 $ver = "VER";
 $ver_trigger = "CICS:";
-
+*/
 ?>
