@@ -1,17 +1,20 @@
+#!/usr/bin/php
 <?php
 // tick use required as of PHP 4.3.0
 declare(ticks = 1);
 
 
 /*****************************************************************************************
- *	Name - usage
+ *
+ *	CICSDaemon.php
  *	Copyright (c) 2018
  *
- *	Description:
+ *	Description: Response parser for Codan radio and message processing
  *
  *	Authors: Peter Illmayer & Craig Steadman
  *
  *	Date: 22/02/2018
++
  *****************************************************************************************
  *	Version History:
  *
@@ -22,16 +25,16 @@ declare(ticks = 1);
  */
 
 include "mySignal.php";
+include "mySemaphore.php";
 include "PhpSerial.php";
 include "CICSParser.php";
 include "myError.php";
-//include "myDebug.php";
+include "myDebug.php";
 include "myGlobals.php";
 include "mySocket.php";
 include "myMessageHandler.php";
 include "mySystemInit.php";
 include "myStreamSockets.php";
-include "mySemaphore.php";
 
 /*
  *****************************************************************************************
@@ -60,7 +63,7 @@ set_time_limit(0);
 ob_implicit_flush();
 
 //Setup semaphore
-$semid=getSemaphore($SEMKEY);
+$semid = getSemaphore($SEMKEY);
 
 // Attach semaphore to shared memory
 if (acquireSemaphore($semid)) 
@@ -84,12 +87,24 @@ $serial=initSerialport();
 setupSignalHandler();
 
 //Fork Message Handler
-$msg_ssock=forkMessageHandler();
+$msg_ssock=forkMessageHandler($semid,$shmid);
 printf(" msg_ssock %s \r\n",fgets($msg_ssock));
 
 //Fork Socket Handler
-$srv_ssock=forkSocketHandler();
+$srv_ssock=forkSocketHandler($semid,$shmid);
 printf(" srv_ssock %s \r\n",fgets($srv_ssock));
+
+//Check shared memory
+$var1 = shm_get_var($shmid,1);
+$var2 = shm_get_var($shmid,2);
+if ($var1 !== false) printf("%s\r\n",$var1);
+if ($var2 !== false) printf("%s\r\n",$var2); 
+
+//Display PIDS
+$parent_pid=getmypid();
+printf("parent PID %d\n\r",getmypid());
+printf("child1 PID %d\n\r",$pids[0]);
+printf("child2 PID %d\n\r",$pids[1]);
 
 // Start parser
 cicsResponseParser($serial);

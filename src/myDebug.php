@@ -1,4 +1,7 @@
 <?php
+// tick use required as of PHP 4.3.0
+declare(ticks = 1);
+
 
 /*****************************************************************************************
  *      Function Prototypes:
@@ -19,7 +22,7 @@
  * notes:
  ****************************************************************/
 function S_DebugPrint($string) {
-    $bt = debug_backtrace();
+    //$bt = debug_backtrace();
     $str = strftime("%c", microtime(true)) . " at line " . $bt[0]['line'] . " :" . $string;
     file_put_contents(S_DEBUGFILE, $str . "\n", FILE_APPEND);
 }

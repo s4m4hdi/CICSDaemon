@@ -1,4 +1,6 @@
 <?php
+// tick use required as of PHP 4.3.0
+declare(ticks = 1);
 
 /*****************************************************************************************
  *      Function Prototypes:
@@ -51,17 +53,39 @@ If we are ignoring SIGCHLD, the child processes will be reaped automatically upo
  * notes:
  ****************************************************************/
 function signalHandler($signo) {
+ global $pids;
+ global $parent_pid;
+
      switch ($signo) {
          case SIGTERM:
              // handle shutdown tasks
              //S_DebugPrint("Caught SIGTERM");
 
-	     // close serial port
+		if ( $parent_pid == getmypid() )
+		{
+		printf("PARENT PID %d\n\r",$parent_pid);
+
+ 		// Send the same signal to the children which we recieved
+		foreach($pids as $p){ posix_kill($p,$signo); }
+		
+	     	// close serial port
+		$myserial = $GLOBALS["serial"];
+		$myserial->deviceClose();
 
 	     // remove semid & shmid
+		$mysemid = $GLOBALS["semid"];
+		$myshmid = $GLOBALS["shmid"];
+		removeSharedMemory($mysemid,$myshmid);
+	
+		// close socketstreams
+		$mymsgssock = $GLOBALS["msg_ssock"];
+		$mysrvssock = $GLOBALS["srv_ssock"];
+		fclose($mymsgssock);
+		fclose($mysrvssock);
+		}
 
-	     // tell child threads to abort
-             exit;
+		// child cleanup - update me
+             	exit;
              break;
          case SIGHUP:
              // handle restart tasks

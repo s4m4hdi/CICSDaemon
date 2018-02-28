@@ -16,7 +16,12 @@ $MEMSIZE = 512;
 $SEMKEY = 1;	//semaphore key;
 $SHMKEY = 2; //shared memory key
 
+// child pid storage
+global $pids;
+$pids = [];
 
+// parent pid
+global $parent_pid;
 
 
 

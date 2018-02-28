@@ -35,7 +35,7 @@ function cleanUp($exit) {
                 }
 		*/
 		printf("\r\nGame Over Dewd !!!\r\n");
-                exit;
+                exit(0);
                 break;
         default:
      }

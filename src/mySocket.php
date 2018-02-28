@@ -140,8 +140,10 @@ function become_daemon()
     }
 }
 
-function forkSocketHandler ()
+function forkSocketHandler ($semid,$shmid)
 {
+global $pids;
+
 //Listens for requests and forks on each connection
 //$__server_listening = true;
 
@@ -162,6 +164,7 @@ $ssock = getStreamSocketPair();
     {
         /* close the parent */
         // parent will remain in this case - setup parent child stream
+        $pids[1] = $gpid2;
 	fclose($ssock[0]);
 	return $ssock[1];
     }else
@@ -170,9 +173,9 @@ $ssock = getStreamSocketPair();
         posix_setsid();
         chdir('/');
         umask(0);
-        //return posix_getpid();
 	fclose($ssock[1]);
 	fwrite($ssock[0],"server_loop ok\r\n");
+	writeSharedMem($semid,$shmid,"shared mem child 2 ok",2);
 	server_loop("192.168.11.80","9650");
 	exit();
     }

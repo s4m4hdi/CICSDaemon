@@ -49,19 +49,19 @@ function attachSharedMem($sem_id,$SHMKEY,$MEMSIZE)
 	}
 }
 
-function writeSharedMem($sem_id,$shm_id,$var1)
+function writeSharedMem($sem_id,$shm_id,$var,$varid)
 {
-    // Write variable 1
-    if (!shm_put_var($shm_id, 1, "Variable 1"))
+    // Write variable $varid
+    if (!shm_put_var($shm_id, $varid, $var))
     {
-        echo "Fail to put var 1 on shared memory $shm_id.\n";
+        echo "Fail to put var on shared memory $shm_id.\n";
         sem_remove($sem_id);
         shm_remove ($shm_id);
         return(false);
     }
     else
 	{
-        echo "Write var1 to shared memory.\n";
+        echo "Write var to shared memory.\n";
 	return(true);
 	}
 }

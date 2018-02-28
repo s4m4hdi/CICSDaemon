@@ -7,7 +7,10 @@ function messageHandler ()
         printf("Launching message handler v1.0 %d\r\n",posix_getpid());
         while(true) sleep(10);
 }
-function forkMessageHandler() {
+
+
+function forkMessageHandler($semid,$shmid) {
+global $pids;
 
 // create stream socket pair
 $ssock = getStreamSocketPair();
@@ -24,6 +27,7 @@ $ssock = getStreamSocketPair();
         exit();
     }elseif ($gpid1)
     {
+        $pids[0] = $gpid1;
         // parent will remain in this case - setup parent child stream
 	fclose($ssock[0]);
 	return $ssock[1];
@@ -33,9 +37,9 @@ $ssock = getStreamSocketPair();
         posix_setsid();
         chdir('/');
         umask(0);
-        //return posix_getpid();
 	fclose($ssock[1]);
 	fwrite($ssock[0],"messageHandler ok\r\n");
+	writeSharedMem($semid,$shmid,"shared mem child 1 ok",1);
         messageHandler();
 	exit();
     }
