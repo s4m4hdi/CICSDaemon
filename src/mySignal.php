@@ -135,4 +135,34 @@ function setupSignalHandler() {
         pcntl_signal(SIGCHLD,  SIG_IGN);
 }
 
+/****************************************************************
+ * function name: reapChildPids()
+ *
+ * description:
+ *
+ * precondition:
+ *
+ * postcondition:
+ *
+ * notes:
+ ****************************************************************/
+function reapChildPids() {
+global $pid;
+
+ // Collect any children which have exited on their own. pcntl_waitpid will
+ // return the PID that exited or 0 or ERROR
+ // WNOHANG means we won't sit here waiting if there's not a child ready
+ // for us to reap immediately
+ // -1 means any child
+ $dead_and_gone = pcntl_waitpid(-1,$status,WNOHANG);
+ while($dead_and_gone > 0){
+ // Remove the gone pid from the array
+ unset($pids[array_search($dead_and_gone,$pids)]); 
+
+ // Look for another one
+ $dead_and_gone = pcntl_waitpid(-1,$status,WNOHANG);
+ }
+}
+
+
 ?>

@@ -83,14 +83,13 @@ $serial=initSerialport();
 
 // Install signal handler
 // - note Phpserial.php throws an exec exception if this is done before serial init
-// ToDo - update signal handling so child PIDS are tracked and sent correct signals as parent exits
 setupSignalHandler();
 
-//Fork Message Handler
+//Fork Message Handler and read string from ssock
 $msg_ssock=forkMessageHandler($semid,$shmid);
 printf(" msg_ssock %s \r\n",fgets($msg_ssock));
 
-//Fork Socket Handler
+//Fork Socket Handler and read string from ssock
 $srv_ssock=forkSocketHandler($semid,$shmid);
 printf(" srv_ssock %s \r\n",fgets($srv_ssock));
 
@@ -106,6 +105,15 @@ printf("parent PID %d\n\r",getmypid());
 printf("child1 PID %d\n\r",$pids[0]);
 printf("child2 PID %d\n\r",$pids[1]);
 
+//Close standard file descriptors & redirect to /dev/null
+/*
+fclose(STDIN);
+fclose(STDOUT);
+fclose(STDERR);
+$stdin = fopen('/dev/null', 'r'); // set fd/0
+$stdout = fopen('/dev/null', 'w'); // set fd/1
+$stderr = fopen('php://stdout', 'w'); // hack to duplicate fd/1 to 2
+*/
 // Start parser
 cicsResponseParser($serial);
 
