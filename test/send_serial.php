@@ -20,8 +20,10 @@ $serial->deviceOpen();
 
 // To write into
 
-$serial->sendMessage("PAGE-CALL:        54,   9599,   8825, 24/02 22:25, \"0409839735TEST\"\r\n");
-$serial->sendMessage("SEL-CALL:         54,   9599,   8825, 24/02 22:28\r\n");
+$serial->sendMessage("PAGE-CALL:        54,   9599,   8825, 24/02 22:25, \"0409839735TEST\"\n");
+sleep(1);
+$serial->sendMessage("SEL-CALL:         54,   9599,   8825, 24/02 22:28\n");
+sleep(1);
 $serial->sendMessage("GPS-POSITION:     54,   9599,   8825, 24/02 22:25, 2342.0625, S, 13352.7180, E,2\r\n");
 
 // If you want to change the configuration, the device must be closed
