@@ -32,14 +32,15 @@ $CICSDaemonLog="/data/log/CICSDaemon/CICSDaemon.log";
 $CICSMessageHandlerLog="/data/log/CICSDaemon/CICSMessageHandler.log";
 $CICSSokHandlerLog="/data/log/CICSDaemon/CICSSocketHandler.log";
 
+define("SMS",	"SMS");
+define("EMAIL",	"EMAIL");
+define("RADIO",	"RADIO");
 
 /*
 $host = "192.168.1.201";
 $port = "9650";
 $max_clients = 10;
 $sock="";
-
-$DEBUG=false;
 
 $gps = "GPS-POSITION";
 $page = "PAGE-CALL";

@@ -116,6 +116,6 @@ $stderr = fopen('php://stdout', 'w'); // hack to duplicate fd/1 to 2
 */
 
 // Start parser
-cicsResponseParser($serial);
+cicsResponseParser($serial,$msg_ssock);
 
 ?>

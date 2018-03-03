@@ -17,7 +17,7 @@ include "CICSProtocol.php";
  * notes:
  ****************************************************************/
 
-function cicsResponseParser($serial) {
+function cicsResponseParser($serial,$ssock) {
 global $DEBUG;
 global $CICSParserLog;
 
@@ -39,6 +39,10 @@ while(true)
 //        do {
                 // non blocking read, non canonical
                 //$read = $serial->readPort();
+
+		// blocking io configured in mySystemInit.php
+		// fgets terminates on length-1 or newline or EOF
+		//       in this case length not specified so blocks and reads till end of line
 		$read = fgets($serial->_dHandle);
 /*
                 if ($read !== "") {
@@ -99,6 +103,14 @@ while(true)
                 case GPS_POSITION:
 			printf("\r\n");
 			printf(">>>> GPS-POSITION detected\r\n\r\n");
+
+
+                //$timeStamp =
+                fwrite($ssock,"testsender\n");
+                fwrite($ssock,"testrecipient\n");
+                fwrite($ssock,"test message\n");
+                fwrite($ssock,"SMS\n");
+
                         // send gps-position data to mysql database
                         // ack message to sender radio
                         // take control of radio
